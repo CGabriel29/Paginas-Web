@@ -2,9 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flor Amarilla Animada (Responsive)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Flor Amarilla en Maceta con Jardín (Responsive)</title>
   <style>
+    :root {
+      box-sizing: border-box;
+    }
+    * { box-sizing: inherit; }
+
     body {
       display: flex;
       flex-direction: column;
@@ -12,31 +17,98 @@
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      /* Fondo azul cielo similar a la imagen de referencia */
-      background: linear-gradient(to bottom, #90caf9, #e3f2fd);
+      background: linear-gradient(to bottom, #90caf9, #e3f2fd 60%, #dcedc8 100%);
       font-family: 'Segoe UI', sans-serif;
-      overflow-x: hidden; /* Evita scroll horizontal si la flor crece mucho */
+      overflow-x: hidden;
+      position: relative;
     }
 
+    /* ---------- JARDÍN DE FONDO ---------- */
+    .jardin {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 190px;
+      background: linear-gradient(to bottom, #9ccc65, #558b2f 90%);
+      overflow: hidden;
+      z-index: 0;
+      box-shadow: inset 0 8px 12px -6px rgba(0,0,0,0.25);
+    }
+
+    .mini-flor {
+      position: absolute;
+      bottom: 8px;
+      width: 36px;
+      transform-origin: bottom center;
+      animation: balanceo 3.6s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    @keyframes balanceo {
+      0%, 100% { transform: rotate(-4deg); }
+      50% { transform: rotate(4deg); }
+    }
+
+    .mini-tallo {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      width: 4px;
+      height: calc(100% - 18px);
+      background: linear-gradient(to top, #2e7d32, #689f38);
+      transform: translateX(-50%);
+      border-radius: 3px;
+    }
+
+    .mini-centro {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      background: radial-gradient(circle, #fff59d, #fbc02d);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+    }
+
+    .mini-petalo {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 9px;
+      height: 18px;
+      margin-left: -4.5px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 25%, var(--color-claro), var(--color-oscuro));
+      transform-origin: bottom center;
+      z-index: 2;
+    }
+
+    .mini-petalo:nth-child(3) { transform: rotate(0deg); }
+    .mini-petalo:nth-child(4) { transform: rotate(72deg); }
+    .mini-petalo:nth-child(5) { transform: rotate(144deg); }
+    .mini-petalo:nth-child(6) { transform: rotate(216deg); }
+    .mini-petalo:nth-child(7) { transform: rotate(288deg); }
+
+    /* ---------- FLOR PRINCIPAL ---------- */
     .flor {
       position: relative;
       width: 200px;
-      height: 350px;
-      /* Tamaño base para dispositivos móviles (30% más grande) */
+      height: 430px;
       transform: scale(1.3);
-      /* Márgenes para compensar el escalado y no pisar otros elementos */
-      margin-top: 100px;
-      margin-bottom: 80px;
+      margin-top: 90px;
+      margin-bottom: 40px;
       transition: transform 0.3s ease;
+      z-index: 2;
     }
 
-    /* Tamaño más grande para pantallas de computadora (tablets y escritorio) */
     @media (min-width: 768px) {
       .flor {
-        /* 80% más grande en pantallas anchas */
-        transform: scale(1.8); 
-        margin-top: 180px;
-        margin-bottom: 150px;
+        transform: scale(1.8);
+        margin-top: 170px;
+        margin-bottom: 120px;
       }
     }
 
@@ -51,13 +123,12 @@
       border-radius: 6px;
     }
 
-    /* Usamos un border-radius especial para darle forma de hoja real */
     .hoja, .hoja2 {
       position: absolute;
       width: 60px;
       height: 60px;
       background: linear-gradient(45deg, #43a047, #2e7d32);
-      border-radius: 0 50% 0 50%; 
+      border-radius: 0 50% 0 50%;
     }
 
     .hoja {
@@ -78,7 +149,6 @@
       height: 80px;
       background: radial-gradient(circle, #ffb300 30%, #e65100 80%);
       border-radius: 50%;
-      /* Centramos el círculo en top: 100px */
       top: 100px;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -91,26 +161,48 @@
       width: 50px;
       height: 100px;
       background: radial-gradient(circle at 50% 20%, #fff176, #fbc02d);
-      /* Forma puntiaguda arriba y redondeada abajo */
       border-radius: 50% 50% 20% 20%;
-      
-      /* Alineamos la parte inferior del pétalo exactamente en el medio de la flor (top: 100px) */
-      top: 0px; 
+      top: 0px;
       left: 50%;
-      margin-left: -25px; /* Mitad del ancho para centrarlo horizontalmente */
-      
-      /* El punto de rotación será la base inferior del pétalo */
+      margin-left: -25px;
       transform-origin: bottom center;
       opacity: 0;
       transition: opacity 0.5s ease, transform 0.5s ease;
-      z-index: 1; /* Para que queden detrás del centro */
+      z-index: 1;
       border: 1px solid #f9a825;
+    }
+
+    /* ---------- MACETA ---------- */
+    .maceta-borde {
+      position: absolute;
+      width: 130px;
+      height: 22px;
+      top: 310px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(to bottom, #ff8a65, #d84315);
+      border-radius: 10px;
+      z-index: 3;
+      box-shadow: 0 3px 4px rgba(0,0,0,0.25);
+    }
+
+    .maceta {
+      position: absolute;
+      width: 110px;
+      height: 90px;
+      top: 325px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(to bottom, #bf360c, #8d2c0a);
+      clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+      z-index: 2;
+      box-shadow: inset -8px 0 12px rgba(0,0,0,0.25);
     }
 
     button {
       position: relative;
-      z-index: 10; /* Asegura que el botón siempre sea clickeable por encima de la flor */
-      margin-top: 30px;
+      z-index: 10;
+      margin-top: 10px;
       margin-bottom: 40px;
       padding: 15px 30px;
       font-size: 20px;
@@ -131,39 +223,129 @@
   </style>
 </head>
 <body>
+
+  <div class="jardin" id="jardin">
+    <div class="mini-flor" style="left:1.0%; height:62px; --color-claro:#f8bbd0; --color-oscuro:#ad1457; animation-delay:0.0s; animation-duration:4.52s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:5.7%; height:67px; --color-claro:#ce93d8; --color-oscuro:#6a1b9a; animation-delay:0.17s; animation-duration:4.04s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:10.3%; height:46px; --color-claro:#ffffff; --color-oscuro:#e0e0e0; animation-delay:0.34s; animation-duration:4.31s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:15.0%; height:48px; --color-claro:#ef9a9a; --color-oscuro:#b71c1c; animation-delay:0.51s; animation-duration:3.59s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:19.7%; height:45px; --color-claro:#90caf9; --color-oscuro:#1565c0; animation-delay:0.68s; animation-duration:4.46s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:24.3%; height:55px; --color-claro:#ffcc80; --color-oscuro:#e65100; animation-delay:0.85s; animation-duration:3.06s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:29.0%; height:69px; --color-claro:#f48fb1; --color-oscuro:#880e4f; animation-delay:1.02s; animation-duration:3.67s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:33.7%; height:57px; --color-claro:#b39ddb; --color-oscuro:#512da8; animation-delay:1.19s; animation-duration:3.15s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:38.3%; height:69px; --color-claro:#f8bbd0; --color-oscuro:#ad1457; animation-delay:1.36s; animation-duration:3.09s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:43.0%; height:49px; --color-claro:#ce93d8; --color-oscuro:#6a1b9a; animation-delay:1.53s; animation-duration:4.52s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:47.7%; height:45px; --color-claro:#ffffff; --color-oscuro:#e0e0e0; animation-delay:1.7s; animation-duration:3.92s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:52.3%; height:67px; --color-claro:#ef9a9a; --color-oscuro:#b71c1c; animation-delay:1.87s; animation-duration:3.08s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:57.0%; height:56px; --color-claro:#90caf9; --color-oscuro:#1565c0; animation-delay:2.04s; animation-duration:3.07s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:61.7%; height:50px; --color-claro:#ffcc80; --color-oscuro:#e65100; animation-delay:2.21s; animation-duration:3.46s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:66.3%; height:51px; --color-claro:#f48fb1; --color-oscuro:#880e4f; animation-delay:2.38s; animation-duration:3.87s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:71.0%; height:61px; --color-claro:#b39ddb; --color-oscuro:#512da8; animation-delay:0.15s; animation-duration:3.9s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:75.7%; height:53px; --color-claro:#f8bbd0; --color-oscuro:#ad1457; animation-delay:0.32s; animation-duration:3.16s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:80.3%; height:54px; --color-claro:#ce93d8; --color-oscuro:#6a1b9a; animation-delay:0.49s; animation-duration:3.6s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:85.0%; height:46px; --color-claro:#ffffff; --color-oscuro:#e0e0e0; animation-delay:0.66s; animation-duration:3.9s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:89.7%; height:55px; --color-claro:#ef9a9a; --color-oscuro:#b71c1c; animation-delay:0.83s; animation-duration:3.79s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:94.3%; height:76px; --color-claro:#90caf9; --color-oscuro:#1565c0; animation-delay:1.0s; animation-duration:3.68s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+    <div class="mini-flor" style="left:99.0%; height:62px; --color-claro:#ffcc80; --color-oscuro:#e65100; animation-delay:1.17s; animation-duration:3.74s;">
+      <div class="mini-tallo"></div><div class="mini-centro"></div>
+      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    </div>
+  </div>
+
   <div class="flor" id="flor">
     <div class="tallo"></div>
     <div class="hoja"></div>
     <div class="hoja2"></div>
     <div class="centro"></div>
+    <div class="maceta-borde"></div>
+    <div class="maceta"></div>
   </div>
-  
+
   <button onclick="crecer()">Agregar pétalo</button>
 
   <script>
     let contador = 0;
-    const totalPetalos = 10; // 10 pétalos como en la imagen deseada
+    const totalPetalos = 10;
 
     function crecer() {
       if (contador < totalPetalos) {
         const flor = document.getElementById("flor");
         const petalo = document.createElement("div");
         petalo.className = "petalo";
-        
-        // Calculamos el ángulo para repartir los 10 pétalos en 360 grados
+
         const angulo = contador * (360 / totalPetalos);
-        
-        // Al aplicar solo rotate, el pétalo girará sobre su base anclada al centro
         petalo.style.transform = `rotate(${angulo}deg) scale(0)`;
-        
+
         flor.appendChild(petalo);
-        
-        // Pequeño timeout para permitir que se ejecute la transición
+
         setTimeout(() => {
           petalo.style.opacity = 1;
-          petalo.style.transform = `rotate(${angulo}deg) scale(1)`; // Efecto visual de que "crece"
+          petalo.style.transform = `rotate(${angulo}deg) scale(1)`;
         }, 50);
-        
+
         contador++;
       }
     }
