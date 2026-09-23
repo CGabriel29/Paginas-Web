@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Flor Amarilla</title>
+  <title>Flor Amarilla Animada</title>
   <style>
     body {
       display: flex;
@@ -11,99 +11,105 @@
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      background: #e0f7fa;
-      font-family: Arial, sans-serif;
+      background: linear-gradient(to top, #a8e6cf, #dcedc1);
+      font-family: 'Segoe UI', sans-serif;
     }
 
     .flor {
       position: relative;
       width: 200px;
       height: 300px;
+      animation: girar 20s linear infinite;
     }
 
-    .centro {
-      position: absolute;
-      width: 60px;
-      height: 60px;
-      background: orange;
-      border-radius: 50%;
-      top: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
-    }
-
-    .petalo {
-      position: absolute;
-      width: 80px;
-      height: 120px;
-      background: yellow;
-      border-radius: 50% 50% 50% 50%;
-      top: 40px;
-      left: 50%;
-      transform-origin: center 80px;
-      opacity: 0;
-      transition: opacity 0.6s ease, transform 0.6s ease;
-      z-index: 1;
+    @keyframes girar {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     .tallo {
       position: absolute;
-      width: 10px;
+      width: 12px;
       height: 200px;
-      background: green;
+      background: linear-gradient(to bottom, #2e7d32, #1b5e20);
       top: 100px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 0;
+      border-radius: 6px;
+    }
+
+    .hoja, .hoja2 {
+      position: absolute;
+      width: 70px;
+      height: 40px;
+      background: linear-gradient(to right, #43a047, #2e7d32);
+      border-radius: 50%;
     }
 
     .hoja {
-      position: absolute;
-      width: 60px;
-      height: 30px;
-      background: green;
-      border-radius: 50%;
       top: 180px;
       left: 50%;
       transform: translateX(-120%) rotate(-20deg);
     }
 
     .hoja2 {
-      position: absolute;
-      width: 60px;
-      height: 30px;
-      background: green;
-      border-radius: 50%;
       top: 220px;
       left: 50%;
       transform: translateX(20%) rotate(20deg);
     }
 
+    .centro {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      background: radial-gradient(circle, #ffb300 30%, #f57c00 70%);
+      border-radius: 50%;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    .petalo {
+      position: absolute;
+      width: 80px;
+      height: 120px;
+      background: radial-gradient(circle at 30% 30%, #fff176, #fbc02d);
+      border-radius: 50%;
+      top: 40px;
+      left: 50%;
+      transform-origin: center 80px;
+      opacity: 0;
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      z-index: 1;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+    }
+
     button {
       margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 12px 24px;
+      font-size: 18px;
       border: none;
-      border-radius: 5px;
-      background: #ffcc00;
+      border-radius: 8px;
+      background: linear-gradient(to bottom, #ffeb3b, #fbc02d);
       cursor: pointer;
-      transition: background 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
     }
 
     button:hover {
-      background: #ffaa00;
+      transform: scale(1.05);
     }
 
-    /* Responsivo para móviles */
     @media (max-width: 600px) {
       .flor {
         width: 150px;
         height: 250px;
       }
       .centro {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
       }
       .petalo {
         width: 60px;
@@ -117,10 +123,10 @@
 </head>
 <body>
   <div class="flor" id="flor">
-    <div class="centro"></div>
     <div class="tallo"></div>
     <div class="hoja"></div>
     <div class="hoja2"></div>
+    <div class="centro"></div>
   </div>
   <button onclick="crecer()">Agregar pétalo</button>
 
@@ -132,15 +138,14 @@
         const flor = document.getElementById("flor");
         const petalo = document.createElement("div");
         petalo.className = "petalo";
-        const angulo = (contador - 1) * 60; // distribuye 6 pétalos
-        petalo.style.transform = `rotate(${angulo}deg) translate(-50%, -120%)`;
+        const angulo = (contador - 1) * 60;
+        petalo.style.transform = `rotate(${angulo}deg) translate(-50%, -130%) scale(1.1)`;
         flor.appendChild(petalo);
         setTimeout(() => {
           petalo.style.opacity = 1;
-        }, 50);
+        }, 100);
       }
     }
   </script>
 </body>
 </html>
-
