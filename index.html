@@ -11,43 +11,77 @@
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      background: #f0f8ff;
+      background: #e0f7fa;
       font-family: Arial, sans-serif;
     }
 
     .flor {
       position: relative;
-      width: 150px;
-      height: 150px;
-      margin-bottom: 20px;
+      width: 200px;
+      height: 300px;
     }
 
     .centro {
       position: absolute;
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       background: orange;
       border-radius: 50%;
-      top: 50%;
+      top: 40px;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       z-index: 2;
     }
 
     .petalo {
       position: absolute;
-      width: 60px;
-      height: 90px;
+      width: 80px;
+      height: 120px;
       background: yellow;
       border-radius: 50% 50% 50% 50%;
-      top: 50%;
+      top: 40px;
       left: 50%;
-      transform-origin: center -20px;
+      transform-origin: center 80px;
       opacity: 0;
-      transition: opacity 0.5s ease, transform 0.5s ease;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      z-index: 1;
+    }
+
+    .tallo {
+      position: absolute;
+      width: 10px;
+      height: 200px;
+      background: green;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 0;
+    }
+
+    .hoja {
+      position: absolute;
+      width: 60px;
+      height: 30px;
+      background: green;
+      border-radius: 50%;
+      top: 180px;
+      left: 50%;
+      transform: translateX(-120%) rotate(-20deg);
+    }
+
+    .hoja2 {
+      position: absolute;
+      width: 60px;
+      height: 30px;
+      background: green;
+      border-radius: 50%;
+      top: 220px;
+      left: 50%;
+      transform: translateX(20%) rotate(20deg);
     }
 
     button {
+      margin-top: 20px;
       padding: 10px 20px;
       font-size: 16px;
       border: none;
@@ -64,16 +98,19 @@
     /* Responsivo para móviles */
     @media (max-width: 600px) {
       .flor {
-        width: 120px;
-        height: 120px;
+        width: 150px;
+        height: 250px;
       }
       .centro {
         width: 40px;
         height: 40px;
       }
       .petalo {
-        width: 50px;
-        height: 70px;
+        width: 60px;
+        height: 90px;
+      }
+      .tallo {
+        height: 150px;
       }
     }
   </style>
@@ -81,19 +118,21 @@
 <body>
   <div class="flor" id="flor">
     <div class="centro"></div>
+    <div class="tallo"></div>
+    <div class="hoja"></div>
+    <div class="hoja2"></div>
   </div>
   <button onclick="crecer()">Agregar pétalo</button>
 
   <script>
     let contador = 0;
     function crecer() {
-      if (contador < 4) {
+      if (contador < 6) {
         contador++;
         const flor = document.getElementById("flor");
         const petalo = document.createElement("div");
         petalo.className = "petalo";
-        // Distribuir pétalos en 4 direcciones (0°, 90°, 180°, 270°)
-        const angulo = contador * 90;
+        const angulo = (contador - 1) * 60; // distribuye 6 pétalos
         petalo.style.transform = `rotate(${angulo}deg) translate(-50%, -120%)`;
         flor.appendChild(petalo);
         setTimeout(() => {
@@ -104,3 +143,4 @@
   </script>
 </body>
 </html>
+
