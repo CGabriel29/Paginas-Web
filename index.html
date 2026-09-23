@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Flor Amarilla</title>
+  <title>Flor Amarilla Compacta</title>
   <style>
     body {
       display: flex;
@@ -72,7 +72,7 @@
       width: 80px;
       height: 120px;
       background: radial-gradient(circle at 30% 30%, #fff176, #fbc02d);
-      border-radius: 50% 50% 50% 50%;
+      border-radius: 50%;
       top: 40px;
       left: 50%;
       transform-origin: center center;
@@ -97,24 +97,6 @@
     button:hover {
       transform: scale(1.05);
     }
-
-    @media (max-width: 600px) {
-      .flor {
-        width: 150px;
-        height: 250px;
-      }
-      .centro {
-        width: 50px;
-        height: 50px;
-      }
-      .petalo {
-        width: 60px;
-        height: 90px;
-      }
-      .tallo {
-        height: 150px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -135,7 +117,7 @@
         const petalo = document.createElement("div");
         petalo.className = "petalo";
         const angulo = (contador - 1) * 60;
-        // Los pétalos nacen desde el centro y se distribuyen en círculo
+        // Ahora cada pétalo rota desde el centro sin separarse
         petalo.style.transform = `rotate(${angulo}deg) translate(-50%, -50%)`;
         flor.appendChild(petalo);
         setTimeout(() => {
