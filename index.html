@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Flor Amarilla Compacta</title>
+  <title>Flor Amarilla Mejorada</title>
   <style>
     body {
       display: flex;
@@ -11,82 +11,92 @@
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      background: linear-gradient(to top, #a8e6cf, #dcedc1);
+      /* Fondo azul cielo similar a la imagen de referencia */
+      background: linear-gradient(to bottom, #90caf9, #e3f2fd);
       font-family: 'Segoe UI', sans-serif;
     }
 
     .flor {
       position: relative;
       width: 200px;
-      height: 300px;
+      height: 350px;
+      margin-top: 50px;
     }
 
     .tallo {
       position: absolute;
-      width: 12px;
-      height: 200px;
-      background: linear-gradient(to bottom, #2e7d32, #1b5e20);
+      width: 14px;
+      height: 220px;
+      background: linear-gradient(to right, #2e7d32, #1b5e20);
       top: 100px;
       left: 50%;
       transform: translateX(-50%);
       border-radius: 6px;
     }
 
-    .hoja {
+    /* Usamos un border-radius especial para darle forma de hoja real */
+    .hoja, .hoja2 {
       position: absolute;
-      width: 70px;
-      height: 40px;
-      background: linear-gradient(to right, #43a047, #2e7d32);
-      border-radius: 50%;
-      top: 180px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(45deg, #43a047, #2e7d32);
+      border-radius: 0 50% 0 50%; 
+    }
+
+    .hoja {
+      top: 160px;
       left: 50%;
-      transform: translateX(-120%) rotate(-20deg);
+      transform: translateX(-100%) rotate(-15deg);
     }
 
     .hoja2 {
-      position: absolute;
-      width: 70px;
-      height: 40px;
-      background: linear-gradient(to left, #43a047, #2e7d32);
-      border-radius: 50%;
-      top: 220px;
+      top: 200px;
       left: 50%;
-      transform: translateX(20%) rotate(20deg);
+      transform: translateX(0%) rotate(75deg);
     }
 
     .centro {
       position: absolute;
-      width: 70px;
-      height: 70px;
-      background: radial-gradient(circle, #ffb300 30%, #f57c00 70%);
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, #ffb300 30%, #e65100 80%);
       border-radius: 50%;
-      top: 40px;
+      /* Centramos el círculo en top: 100px */
+      top: 100px;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 2;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      z-index: 3;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.3);
     }
 
     .petalo {
       position: absolute;
-      width: 80px;
-      height: 120px;
-      background: radial-gradient(circle at 30% 30%, #fff176, #fbc02d);
-      border-radius: 50%;
-      top: 40px;
+      width: 50px;
+      height: 100px;
+      background: radial-gradient(circle at 50% 20%, #fff176, #fbc02d);
+      /* Forma puntiaguda arriba y redondeada abajo */
+      border-radius: 50% 50% 20% 20%;
+      
+      /* Alineamos la parte inferior del pétalo exactamente en el medio de la flor (top: 100px) */
+      top: 0px; 
       left: 50%;
-      transform-origin: center center;
+      margin-left: -25px; /* Mitad del ancho para centrarlo horizontalmente */
+      
+      /* El punto de rotación será la base inferior del pétalo */
+      transform-origin: bottom center;
       opacity: 0;
-      transition: opacity 0.8s ease, transform 0.8s ease;
-      z-index: 1;
-      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      z-index: 1; /* Para que queden detrás del centro */
+      border: 1px solid #f9a825;
     }
 
     button {
-      margin-top: 20px;
+      margin-top: 30px;
       padding: 12px 24px;
       font-size: 18px;
-      border: none;
+      font-weight: bold;
+      color: #333;
+      border: 2px solid #f9a825;
       border-radius: 8px;
       background: linear-gradient(to bottom, #ffeb3b, #fbc02d);
       cursor: pointer;
@@ -110,19 +120,29 @@
 
   <script>
     let contador = 0;
+    const totalPetalos = 10; // 10 pétalos como en la imagen deseada
+
     function crecer() {
-      if (contador < 6) {
-        contador++;
+      if (contador < totalPetalos) {
         const flor = document.getElementById("flor");
         const petalo = document.createElement("div");
         petalo.className = "petalo";
-        const angulo = (contador - 1) * 60;
-        // Ahora cada pétalo rota desde el centro sin separarse
-        petalo.style.transform = `rotate(${angulo}deg) translate(-50%, -50%)`;
+        
+        // Calculamos el ángulo para repartir los 10 pétalos en 360 grados
+        const angulo = contador * (360 / totalPetalos);
+        
+        // Al aplicar solo rotate, el pétalo girará sobre su base anclada al centro
+        petalo.style.transform = `rotate(${angulo}deg) scale(0)`;
+        
         flor.appendChild(petalo);
+        
+        // Pequeño timeout para permitir que se ejecute la transición
         setTimeout(() => {
           petalo.style.opacity = 1;
-        }, 100);
+          petalo.style.transform = `rotate(${angulo}deg) scale(1)`; // Efecto visual de que "crece"
+        }, 50);
+        
+        contador++;
       }
     }
   </script>
