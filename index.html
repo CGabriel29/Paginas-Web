@@ -17,31 +17,34 @@
 
     .flor {
       position: relative;
-      width: 100px;
-      height: 100px;
+      width: 150px;
+      height: 150px;
       margin-bottom: 20px;
-    }
-
-    .petalo {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      background: yellow;
-      border-radius: 50%;
-      transform-origin: center bottom;
-      opacity: 0;
-      transition: opacity 0.5s ease, transform 0.5s ease;
     }
 
     .centro {
       position: absolute;
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       background: orange;
       border-radius: 50%;
-      top: 30px;
-      left: 30px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       z-index: 2;
+    }
+
+    .petalo {
+      position: absolute;
+      width: 60px;
+      height: 90px;
+      background: yellow;
+      border-radius: 50% 50% 50% 50%;
+      top: 50%;
+      left: 50%;
+      transform-origin: center -20px;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
 
     button {
@@ -61,18 +64,16 @@
     /* Responsivo para móviles */
     @media (max-width: 600px) {
       .flor {
-        width: 80px;
-        height: 80px;
+        width: 120px;
+        height: 120px;
       }
-      .petalo {
+      .centro {
         width: 40px;
         height: 40px;
       }
-      .centro {
-        width: 30px;
-        height: 30px;
-        top: 25px;
-        left: 25px;
+      .petalo {
+        width: 50px;
+        height: 70px;
       }
     }
   </style>
@@ -91,7 +92,9 @@
         const flor = document.getElementById("flor");
         const petalo = document.createElement("div");
         petalo.className = "petalo";
-        petalo.style.transform = `rotate(${contador * 90}deg) translateY(-40px)`;
+        // Distribuir pétalos en 4 direcciones (0°, 90°, 180°, 270°)
+        const angulo = contador * 90;
+        petalo.style.transform = `rotate(${angulo}deg) translate(-50%, -120%)`;
         flor.appendChild(petalo);
         setTimeout(() => {
           petalo.style.opacity = 1;
@@ -101,4 +104,3 @@
   </script>
 </body>
 </html>
-
