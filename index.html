@@ -3,24 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Flor Amarilla</title>
+  <title>Flor Amarilla Mágica</title>
+  <!-- Tailwind CSS para diseño moderno y estructurado -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome para íconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Poppins & Dancing Script -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Canvas-Confetti para efectos de celebración -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <style>
     :root {
-      box-sizing: border-box;
+      --primary-yellow: #fff176;
+      --deep-yellow: #fbc02d;
+      --petal-border: #f9a825;
     }
-    * { box-sizing: inherit; }
 
     body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #b3e5fc 0%, #e1f5fe 45%, #f1f8e9 80%, #dcedc8 100%);
       min-height: 100vh;
-      margin: 0;
-      background: linear-gradient(to bottom, #90caf9, #e3f2fd 60%, #dcedc8 100%);
-      font-family: 'Segoe UI', sans-serif;
       overflow-x: hidden;
-      position: relative;
+      user-select: none;
+    }
+
+    .font-handwriting {
+      font-family: 'Dancing Script', cursive;
+    }
+
+    /* ---------- ANIMACIONES DE FONDO Y NUBES ---------- */
+    .nube {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50px;
+      opacity: 0.8;
+      animation: moverNubes linear infinite;
+      filter: blur(1px);
+    }
+    .nube::before, .nube::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+    }
+    .nube1 { width: 120px; height: 40px; top: 8%; animation-duration: 35s; }
+    .nube1::before { width: 50px; height: 50px; top: -20px; left: 20px; }
+    .nube1::after { width: 40px; height: 40px; top: -15px; right: 20px; }
+
+    .nube2 { width: 160px; height: 50px; top: 18%; animation-duration: 45s; animation-delay: -15s; }
+    .nube2::before { width: 60px; height: 60px; top: -25px; left: 30px; }
+    .nube2::after { width: 50px; height: 50px; top: -20px; right: 25px; }
+
+    @keyframes moverNubes {
+      from { left: -200px; }
+      to { left: 105vw; }
     }
 
     /* ---------- JARDÍN DE FONDO ---------- */
@@ -29,25 +69,28 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 190px;
-      background: linear-gradient(to bottom, #9ccc65, #558b2f 90%);
+      height: 180px;
+      background: linear-gradient(to bottom, #81c784 0%, #388e3c 100%);
       overflow: hidden;
       z-index: 0;
-      box-shadow: inset 0 8px 12px -6px rgba(0,0,0,0.25);
+      box-shadow: inset 0 10px 20px rgba(0,0,0,0.15);
+      border-top-left-radius: 40px;
+      border-top-right-radius: 40px;
     }
 
     .mini-flor {
       position: absolute;
-      bottom: 8px;
+      bottom: 12px;
       width: 36px;
       transform-origin: bottom center;
-      animation: balanceo 3.6s ease-in-out infinite;
+      animation: balanceo 3.5s ease-in-out infinite;
       z-index: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
     }
 
     @keyframes balanceo {
-      0%, 100% { transform: rotate(-4deg); }
-      50% { transform: rotate(4deg); }
+      0%, 100% { transform: rotate(-5deg); }
+      50% { transform: rotate(5deg); }
     }
 
     .mini-tallo {
@@ -55,8 +98,8 @@
       top: 18px;
       left: 50%;
       width: 4px;
-      height: calc(100% - 18px);
-      background: linear-gradient(to top, #2e7d32, #689f38);
+      height: 70px;
+      background: linear-gradient(to top, #1b5e20, #43a047);
       transform: translateX(-50%);
       border-radius: 3px;
     }
@@ -65,21 +108,22 @@
       position: absolute;
       top: 18px;
       left: 50%;
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       background: radial-gradient(circle, #fff59d, #fbc02d);
       border-radius: 50%;
       transform: translate(-50%, -50%);
       z-index: 3;
+      box-shadow: 0 0 4px rgba(0,0,0,0.2);
     }
 
     .mini-petalo {
       position: absolute;
       top: 0;
       left: 50%;
-      width: 9px;
-      height: 18px;
-      margin-left: -4.5px;
+      width: 10px;
+      height: 20px;
+      margin-left: -5px;
       border-radius: 50%;
       background: radial-gradient(circle at 50% 25%, var(--color-claro), var(--color-oscuro));
       transform-origin: bottom center;
@@ -93,244 +137,276 @@
     .mini-petalo:nth-child(7) { transform: rotate(288deg); }
 
     /* ---------- FLOR PRINCIPAL ---------- */
-    .flor {
+    .flor-container {
       position: relative;
-      width: 200px;
-      height: 430px;
-      transform: scale(1.3);
-      margin-top: 90px;
-      margin-bottom: 40px;
-      transition: transform 0.3s ease;
-      z-index: 2;
+      width: 280px;
+      height: 400px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    @media (min-width: 768px) {
-      .flor {
-        transform: scale(1.8);
-        margin-top: 170px;
-        margin-bottom: 120px;
-      }
+    .flor {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
     }
 
     .tallo {
       position: absolute;
-      width: 14px;
-      height: 220px;
-      background: linear-gradient(to right, #2e7d32, #1b5e20);
-      top: 100px;
+      width: 16px;
+      height: 250px;
+      background: linear-gradient(to right, #2e7d32, #4caf50, #1b5e20);
+      top: 130px;
       left: 50%;
       transform: translateX(-50%);
-      border-radius: 6px;
-    }
-
-    .hoja, .hoja2 {
-      position: absolute;
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(45deg, #43a047, #2e7d32);
-      border-radius: 0 50% 0 50%;
+      border-radius: 8px;
+      box-shadow: inset -2px 0 5px rgba(0,0,0,0.3);
     }
 
     .hoja {
-      top: 160px;
-      left: 50%;
-      transform: translateX(-100%) rotate(-15deg);
-    }
-
-    .hoja2 {
-      top: 200px;
-      left: 50%;
-      transform: translateX(0%) rotate(75deg);
-    }
-
-    .centro {
       position: absolute;
-      width: 80px;
-      height: 80px;
-      background: radial-gradient(circle, #ffb300 30%, #e65100 80%);
+      width: 70px;
+      height: 45px;
+      background: linear-gradient(135deg, #66bb6a, #2e7d32);
+      border-radius: 0 80% 0 80%;
+      box-shadow: 2px 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .hoja.izquierda {
+      top: 220px;
+      left: 50%;
+      transform: translateX(-105%) rotate(-20deg);
+    }
+
+    .hoja.derecha {
+      top: 260px;
+      left: 50%;
+      transform: translateX(5%) rotate(50deg);
+    }
+
+    .centro-flor {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, #ffe082 0%, #ff8f00 70%, #e65100 100%);
       border-radius: 50%;
-      top: 100px;
+      top: 130px;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 3;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 20;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.3), 0 8px 20px rgba(255, 160, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #ffe082;
+    }
+
+    .centro-textura {
+      width: 80%;
+      height: 80%;
+      border-radius: 50%;
+      background-image: radial-gradient(#bf360c 15%, transparent 16%);
+      background-size: 8px 8px;
+      opacity: 0.4;
     }
 
     .petalo {
       position: absolute;
-      width: 50px;
-      height: 100px;
-      background: radial-gradient(circle at 50% 20%, #fff176, #fbc02d);
-      border-radius: 50% 50% 20% 20%;
-      top: 0px;
+      width: 60px;
+      height: 120px;
+      background: linear-gradient(180deg, #fffde7 0%, #fff176 30%, #fbc02d 85%, #f57f17 100%);
+      border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
+      top: 130px;
       left: 50%;
-      margin-left: -25px;
+      margin-left: -30px;
+      margin-top: -120px;
       transform-origin: bottom center;
       opacity: 0;
-      transition: opacity 0.5s ease, transform 0.5s ease;
-      z-index: 1;
-      border: 1px solid #f9a825;
+      transition: opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 10;
+      border: 1.5px solid #f9a825;
+      box-shadow: 0 4px 15px rgba(251, 192, 45, 0.4);
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 12px;
+      text-decoration: none;
+    }
+
+    .petalo::after {
+      content: '';
+      position: absolute;
+      top: 15px;
+      width: 8px;
+      height: 55px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 10px;
+      filter: blur(1px);
+    }
+
+    .petalo:hover {
+      filter: brightness(1.1) drop-shadow(0 0 12px rgba(255, 235, 59, 0.9));
+    }
+
+    /* Indicador especial de enlace en el pétalo */
+    .petalo.con-enlace::before {
+      content: '\f16d';
+      font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands';
+      font-weight: 900;
+      color: rgba(225, 48, 108, 0.85);
+      font-size: 14px;
+      z-index: 12;
+      background: rgba(255, 255, 255, 0.9);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); box-shadow: 0 0 10px rgba(225, 48, 108, 0.6); }
     }
 
     /* ---------- MACETA ---------- */
     .maceta-borde {
       position: absolute;
-      width: 130px;
-      height: 22px;
-      top: 310px;
+      width: 150px;
+      height: 26px;
+      top: 360px;
       left: 50%;
       transform: translateX(-50%);
-      background: linear-gradient(to bottom, #ff8a65, #d84315);
-      border-radius: 10px;
-      z-index: 3;
-      box-shadow: 0 3px 4px rgba(0,0,0,0.25);
+      background: linear-gradient(to right, #ff8a65, #d84315, #bf360c);
+      border-radius: 12px;
+      z-index: 22;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
     .maceta {
       position: absolute;
-      width: 110px;
-      height: 90px;
-      top: 325px;
+      width: 130px;
+      height: 100px;
+      top: 375px;
       left: 50%;
       transform: translateX(-50%);
-      background: linear-gradient(to bottom, #bf360c, #8d2c0a);
+      background: linear-gradient(to bottom, #d84315, #8d2c0a);
       clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
-      z-index: 2;
-      box-shadow: inset -8px 0 12px rgba(0,0,0,0.25);
+      z-index: 21;
+      box-shadow: inset -10px 0 15px rgba(0,0,0,0.3);
     }
 
-    button {
-      position: relative;
-      z-index: 10;
-      margin-top: 10px;
-      margin-bottom: 40px;
-      padding: 15px 30px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #333;
-      border: 2px solid #f9a825;
-      border-radius: 8px;
-      background: linear-gradient(to bottom, #ffeb3b, #fbc02d);
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      transition: transform 0.2s, box-shadow 0.2s;
+    /* ---------- CHISPAS / PARTÍCULAS ---------- */
+    .chispa {
+      position: absolute;
+      pointer-events: none;
+      background: radial-gradient(circle, #fff, #ffee58);
+      border-radius: 50%;
+      animation: animarChispa 0.8s ease-out forwards;
+      z-index: 50;
     }
 
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    @keyframes animarChispa {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+    }
+
+    /* ---------- TOAST NOTIFICACIÓN ---------- */
+    #toast {
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      transform: translateY(100px) scale(0.8);
+      opacity: 0;
+    }
+    #toast.show {
+      transform: translateY(0) scale(1);
+      opacity: 1;
     }
   </style>
 </head>
-<body>
+<body class="flex flex-col items-center justify-between min-h-screen p-4 pb-24 text-gray-800">
 
+  <!-- Nubes animadas de fondo -->
+  <div class="nube nube1"></div>
+  <div class="nube nube2"></div>
+
+  <!-- Header / Instrucción Principal -->
+  <header class="w-full max-w-xl mx-auto text-center mt-2 z-30">
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl p-4 md:p-6 shadow-xl border border-white/60 transition-all duration-300 transform hover:scale-[1.01]">
+      <h1 class="text-3xl md:text-4xl font-bold font-handwriting text-amber-600 mb-2 drop-shadow-sm flex items-center justify-center gap-2">
+        <span>✨</span> Flor Amarilla Especial <span>✨</span>
+      </h1>
+      
+      <!-- FRASE SOLICITADA -->
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-3 rounded-r-xl shadow-inner my-2">
+        <p id="instruccion" class="text-base md:text-lg font-semibold text-amber-900 tracking-wide">
+          Completa los pétalos de la Flor, luego haz clic en algunos pétalos
+        </p>
+      </div>
+
+      <!-- Contador de pétalos -->
+      <div class="mt-3 flex items-center justify-center gap-2 text-sm font-medium text-amber-700">
+        <span id="contador-texto">Pétalos creados: 0 / 10</span>
+        <div class="w-32 bg-amber-100 h-3 rounded-full overflow-hidden border border-amber-200 shadow-inner">
+          <div id="barra-progreso" class="bg-gradient-to-r from-amber-400 to-yellow-500 h-full w-0 transition-all duration-500 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Jardín del fondo con miniflorcitas -->
   <div class="jardin" id="jardin">
-    <div class="mini-flor" style="left:1.0%; height:62px; --color-claro:#f8bbd0; --color-oscuro:#ad1457; animation-delay:0.0s; animation-duration:4.52s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:5.7%; height:67px; --color-claro:#ce93d8; --color-oscuro:#6a1b9a; animation-delay:0.17s; animation-duration:4.04s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:10.3%; height:46px; --color-claro:#ffffff; --color-oscuro:#e0e0e0; animation-delay:0.34s; animation-duration:4.31s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:15.0%; height:48px; --color-claro:#ef9a9a; --color-oscuro:#b71c1c; animation-delay:0.51s; animation-duration:3.59s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:19.7%; height:45px; --color-claro:#90caf9; --color-oscuro:#1565c0; animation-delay:0.68s; animation-duration:4.46s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:24.3%; height:55px; --color-claro:#ffcc80; --color-oscuro:#e65100; animation-delay:0.85s; animation-duration:3.06s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:29.0%; height:69px; --color-claro:#f48fb1; --color-oscuro:#880e4f; animation-delay:1.02s; animation-duration:3.67s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:33.7%; height:57px; --color-claro:#b39ddb; --color-oscuro:#512da8; animation-delay:1.19s; animation-duration:3.15s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:38.3%; height:69px; --color-claro:#f8bbd0; --color-oscuro:#ad1457; animation-delay:1.36s; animation-duration:3.09s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:43.0%; height:49px; --color-claro:#ce93d8; --color-oscuro:#6a1b9a; animation-delay:1.53s; animation-duration:4.52s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:47.7%; height:45px; --color-claro:#ffffff; --color-oscuro:#e0e0e0; animation-delay:1.7s; animation-duration:3.92s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:52.3%; height:67px; --color-claro:#ef9a9a; --color-oscuro:#b71c1c; animation-delay:1.87s; animation-duration:3.08s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:57.0%; height:56px; --color-claro:#90caf9; --color-oscuro:#1565c0; animation-delay:2.04s; animation-duration:3.07s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:61.7%; height:50px; --color-claro:#ffcc80; --color-oscuro:#e65100; animation-delay:2.21s; animation-duration:3.46s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:66.3%; height:51px; --color-claro:#f48fb1; --color-oscuro:#880e4f; animation-delay:2.38s; animation-duration:3.87s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:71.0%; height:61px; --color-claro:#b39ddb; --color-oscuro:#512da8; animation-delay:0.15s; animation-duration:3.9s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:75.7%; height:53px; --color-claro:#f8bbd0; --color-oscuro:#ad1457; animation-delay:0.32s; animation-duration:3.16s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:80.3%; height:54px; --color-claro:#ce93d8; --color-oscuro:#6a1b9a; animation-delay:0.49s; animation-duration:3.6s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:85.0%; height:46px; --color-claro:#ffffff; --color-oscuro:#e0e0e0; animation-delay:0.66s; animation-duration:3.9s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:89.7%; height:55px; --color-claro:#ef9a9a; --color-oscuro:#b71c1c; animation-delay:0.83s; animation-duration:3.79s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:94.3%; height:76px; --color-claro:#90caf9; --color-oscuro:#1565c0; animation-delay:1.0s; animation-duration:3.68s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
-    </div>
-    <div class="mini-flor" style="left:99.0%; height:62px; --color-claro:#ffcc80; --color-oscuro:#e65100; animation-delay:1.17s; animation-duration:3.74s;">
-      <div class="mini-tallo"></div><div class="mini-centro"></div>
-      <div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div><div class="mini-petalo"></div>
+    <!-- Generado dinámicamente mediante JS -->
+  </div>
+
+  <!-- Contenedor de la flor principal -->
+  <div class="flor-container">
+    <div class="flor" id="flor">
+      <div class="tallo"></div>
+      <div class="hoja izquierda"></div>
+      <div class="hoja derecha"></div>
+      <div class="centro-flor">
+        <div class="centro-textura"></div>
+      </div>
+      <div class="maceta-borde"></div>
+      <div class="maceta"></div>
     </div>
   </div>
 
-  <div class="flor" id="flor">
-    <div class="tallo"></div>
-    <div class="hoja"></div>
-    <div class="hoja2"></div>
-    <div class="centro"></div>
-    <div class="maceta-borde"></div>
-    <div class="maceta"></div>
+  <!-- Botones de Acción -->
+  <div class="flex flex-col items-center gap-3 z-30 mb-4">
+    <button id="btn-crecer" onclick="crecer()" class="group relative px-8 py-4 text-lg md:text-xl font-bold text-amber-900 bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 rounded-full shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-yellow-200 flex items-center gap-3">
+      <i class="fa-solid fa-wand-magic-sparkles text-amber-800 group-hover:rotate-12 transition-transform duration-300"></i>
+      <span>Agregar pétalo</span>
+      <span class="flex h-3 w-3 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-100 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-600"></span>
+      </span>
+    </button>
   </div>
 
-  <button onclick="crecer()">Agregar pétalo</button>
+  <!-- Toast Notificación -->
+  <div id="toast" class="fixed bottom-6 z-50 bg-slate-900/90 backdrop-blur-md text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700/50">
+    <div id="toast-icon" class="text-xl text-yellow-400">
+      <i class="fa-solid fa-circle-info"></i>
+    </div>
+    <span id="toast-message" class="text-sm md:text-base font-medium">Mensaje de prueba</span>
+  </div>
 
   <script>
     let contador = 0;
     const totalPetalos = 10;
 
-    // Enlaces a repartir al azar, uno por pétalo (quedan pétalos sin enlace)
+    // Enlaces originales proporcionados
     const enlaces = [
       "https://www.instagram.com/reel/DdjcfZGRAOm/?stkn=MWJ5bzQxZ2V6M3g0aQ==",
       "https://www.instagram.com/reel/DdkMBUmxZwM/?stkn=eHUxYm05YWN0eWhs",
@@ -341,30 +417,130 @@
     ];
 
     function mezclar(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
+      const copia = [...arr];
+      for (let i = copia.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+        [copia[i], copia[j]] = [copia[j], copia[i]];
       }
-      return arr;
+      return copia;
     }
 
-    // Sortea qué pétalos (de 0 a 9) reciben un enlace
+    // Sortear qué pétalos (de 0 a 9) reciben enlace
     const indicesElegidos = mezclar([...Array(totalPetalos).keys()]);
     const enlacePorPetalo = {};
     enlaces.forEach((url, i) => {
       enlacePorPetalo[indicesElegidos[i]] = url;
     });
 
+    // Generar Mini Flores para el Jardín del fondo
+    function generarJardin() {
+      const jardin = document.getElementById('jardin');
+      const colores = [
+        { claro: '#f8bbd0', oscuro: '#ad1457' },
+        { claro: '#ce93d8', oscuro: '#6a1b9a' },
+        { claro: '#ffffff', oscuro: '#e0e0e0' },
+        { claro: '#ef9a9a', oscuro: '#b71c1c' },
+        { claro: '#90caf9', oscuro: '#1565c0' },
+        { claro: '#ffcc80', oscuro: '#e65100' },
+        { claro: '#f48fb1', oscuro: '#880e4f' },
+        { claro: '#b39ddb', oscuro: '#512da8' }
+      ];
+
+      const cantidad = Math.floor(window.innerWidth / 35);
+      for (let i = 0; i < cantidad; i++) {
+        const color = colores[Math.floor(Math.random() * colores.length)];
+        const posX = (i * (100 / cantidad)) + (Math.random() * 2);
+        const altura = Math.floor(Math.random() * 30) + 45;
+        const delay = (Math.random() * 2).toFixed(2);
+        const duracion = (Math.random() * 1.5 + 3).toFixed(2);
+
+        const florDiv = document.createElement('div');
+        florDiv.className = 'mini-flor';
+        florDiv.style.cssText = `
+          left: ${posX}%;
+          height: ${altura}px;
+          --color-claro: ${color.claro};
+          --color-oscuro: ${color.oscuro};
+          animation-delay: ${delay}s;
+          animation-duration: ${duracion}s;
+        `;
+
+        florDiv.innerHTML = `
+          <div class="mini-tallo"></div>
+          <div class="mini-centro"></div>
+          <div class="mini-petalo"></div>
+          <div class="mini-petalo"></div>
+          <div class="mini-petalo"></div>
+          <div class="mini-petalo"></div>
+          <div class="mini-petalo"></div>
+        `;
+        jardin.appendChild(florDiv);
+      }
+    }
+
+    // Efecto de chispas al nacer pétalo
+    function crearChispas(x, y) {
+      const numChispas = 12;
+      for (let i = 0; i < numChispas; i++) {
+        const chispa = document.createElement('div');
+        chispa.className = 'chispa';
+        const tam = Math.random() * 8 + 4;
+        chispa.style.width = `${tam}px`;
+        chispa.style.height = `${tam}px`;
+
+        const angulo = (i * (360 / numChispas)) * (Math.PI / 180);
+        const dist = Math.random() * 60 + 30;
+        const dx = Math.cos(angulo) * dist;
+        const dy = Math.sin(angulo) * dist;
+
+        chispa.style.setProperty('--dx', `${dx}px`);
+        chispa.style.setProperty('--dy', `${dy}px`);
+        chispa.style.left = `${x}px`;
+        chispa.style.top = `${y}px`;
+
+        document.body.appendChild(chispa);
+        setTimeout(() => chispa.remove(), 800);
+      }
+    }
+
+    // Notificación flotante (Toast)
+    let toastTimeout;
+    function mostrarToast(mensaje, icono = 'fa-circle-info') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+
+      toastMessage.textContent = mensaje;
+      toastIcon.innerHTML = `<i class="fa-solid ${icono}"></i>`;
+
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+
+    // Agregar pétalo progresivamente
     function crecer() {
       if (contador < totalPetalos) {
         const flor = document.getElementById("flor");
         const url = enlacePorPetalo[contador];
+        
+        // Elemento pétalo
         const petalo = document.createElement(url ? "a" : "div");
-        petalo.className = "petalo";
+        petalo.className = `petalo ${url ? 'con-enlace' : ''}`;
+        
         if (url) {
           petalo.href = url;
           petalo.target = "_blank";
           petalo.rel = "noopener noreferrer";
+          petalo.addEventListener('click', () => {
+            mostrarToast("¡Abriendo una sorpresa especial en Instagram! 🎁", "fa-arrow-up-right-from-square");
+          });
+        } else {
+          petalo.addEventListener('click', () => {
+            mostrarToast("Este pétalo es pura belleza decorativa 💛 Sigue probando los otros.", "fa-heart");
+          });
         }
 
         const angulo = contador * (360 / totalPetalos);
@@ -372,14 +548,59 @@
 
         flor.appendChild(petalo);
 
+        // Posición para las chispas (centro de la flor aprox)
+        const rectFlor = flor.getBoundingClientRect();
+        const centroX = rectFlor.left + rectFlor.width / 2;
+        const centroY = rectFlor.top + 130;
+        crearChispas(centroX, centroY);
+
         setTimeout(() => {
           petalo.style.opacity = 1;
           petalo.style.transform = `rotate(${angulo}deg) scale(1)`;
         }, 50);
 
         contador++;
+        actualizarProgreso();
+
+        if (contador === totalPetalos) {
+          finalizarFlor();
+        }
       }
     }
+
+    function actualizarProgreso() {
+      document.getElementById('contador-texto').textContent = `Pétalos creados: ${contador} / ${totalPetalos}`;
+      const porcentaje = (contador / totalPetalos) * 100;
+      document.getElementById('barra-progreso').style.width = `${porcentaje}%`;
+    }
+
+    function finalizarFlor() {
+      const btn = document.getElementById('btn-crecer');
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed', 'hover:scale-100');
+      btn.innerHTML = `<i class="fa-solid fa-check text-green-700"></i><span>¡Flor Completa!</span>`;
+
+      // Efecto de Confeti de Celebración
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ['#fff176', '#fbc02d', '#f57f17', '#ffffff', '#81c784']
+      });
+
+      mostrarToast("¡Flor completada! Haz clic en los pétalos con ícono de Instagram 🌸", "fa-star");
+    }
+
+    // Inicializar jardín al cargar
+    window.onload = () => {
+      generarJardin();
+    };
+
+    // Re-adaptar mini jardín al redimensionar pantalla
+    window.onresize = () => {
+      document.getElementById('jardin').innerHTML = '';
+      generarJardin();
+    };
   </script>
 </body>
 </html>
