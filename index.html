@@ -2,11 +2,103 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mi primera página</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Flor Amarilla</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f0f8ff;
+      font-family: Arial, sans-serif;
+    }
+
+    .flor {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 20px;
+    }
+
+    .petalo {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: yellow;
+      border-radius: 50%;
+      transform-origin: center bottom;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .centro {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: orange;
+      border-radius: 50%;
+      top: 30px;
+      left: 30px;
+      z-index: 2;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: #ffcc00;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #ffaa00;
+    }
+
+    /* Responsivo para móviles */
+    @media (max-width: 600px) {
+      .flor {
+        width: 80px;
+        height: 80px;
+      }
+      .petalo {
+        width: 40px;
+        height: 40px;
+      }
+      .centro {
+        width: 30px;
+        height: 30px;
+        top: 25px;
+        left: 25px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>¡Hola, mundo!</h1>
-  <p>Esta es mi primera página publicada en GitHub Pages.</p>
+  <div class="flor" id="flor">
+    <div class="centro"></div>
+  </div>
+  <button onclick="crecer()">Agregar pétalo</button>
+
+  <script>
+    let contador = 0;
+    function crecer() {
+      if (contador < 4) {
+        contador++;
+        const flor = document.getElementById("flor");
+        const petalo = document.createElement("div");
+        petalo.className = "petalo";
+        petalo.style.transform = `rotate(${contador * 90}deg) translateY(-40px)`;
+        flor.appendChild(petalo);
+        setTimeout(() => {
+          petalo.style.opacity = 1;
+        }, 50);
+      }
+    }
+  </script>
 </body>
 </html>
+
