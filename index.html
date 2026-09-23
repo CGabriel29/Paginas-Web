@@ -330,11 +330,42 @@
     let contador = 0;
     const totalPetalos = 10;
 
+    // Enlaces a repartir al azar, uno por pétalo (quedan pétalos sin enlace)
+    const enlaces = [
+      "https://www.instagram.com/reel/DdjcfZGRAOm/?stkn=MWJ5bzQxZ2V6M3g0aQ==",
+      "https://www.instagram.com/reel/DdkMBUmxZwM/?stkn=eHUxYm05YWN0eWhs",
+      "https://www.instagram.com/reel/Ddj-TkuhpkQ/?stkn=MXg2bm5oNmZuMG0yeA==",
+      "https://www.instagram.com/reel/DdkT6yBRSXb/?stkn=MTI2bnNlZnc4a3A5eA==",
+      "https://www.instagram.com/reel/DdiOe9XAjca/?stkn=N21wY3BkbzVodHli",
+      "https://www.instagram.com/reel/Ddj4driqGQH/?stkn=YzMyc2g4dTlsaGVh"
+    ];
+
+    function mezclar(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Sortea qué pétalos (de 0 a 9) reciben un enlace
+    const indicesElegidos = mezclar([...Array(totalPetalos).keys()]);
+    const enlacePorPetalo = {};
+    enlaces.forEach((url, i) => {
+      enlacePorPetalo[indicesElegidos[i]] = url;
+    });
+
     function crecer() {
       if (contador < totalPetalos) {
         const flor = document.getElementById("flor");
-        const petalo = document.createElement("div");
+        const url = enlacePorPetalo[contador];
+        const petalo = document.createElement(url ? "a" : "div");
         petalo.className = "petalo";
+        if (url) {
+          petalo.href = url;
+          petalo.target = "_blank";
+          petalo.rel = "noopener noreferrer";
+        }
 
         const angulo = contador * (360 / totalPetalos);
         petalo.style.transform = `rotate(${angulo}deg) scale(0)`;
