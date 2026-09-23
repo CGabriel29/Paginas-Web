@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Flor Amarilla Animada</title>
+  <title>Flor Amarilla</title>
   <style>
     body {
       display: flex;
@@ -19,12 +19,6 @@
       position: relative;
       width: 200px;
       height: 300px;
-      animation: girar 20s linear infinite;
-    }
-
-    @keyframes girar {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
     }
 
     .tallo {
@@ -38,21 +32,23 @@
       border-radius: 6px;
     }
 
-    .hoja, .hoja2 {
+    .hoja {
       position: absolute;
       width: 70px;
       height: 40px;
       background: linear-gradient(to right, #43a047, #2e7d32);
       border-radius: 50%;
-    }
-
-    .hoja {
       top: 180px;
       left: 50%;
       transform: translateX(-120%) rotate(-20deg);
     }
 
     .hoja2 {
+      position: absolute;
+      width: 70px;
+      height: 40px;
+      background: linear-gradient(to left, #43a047, #2e7d32);
+      border-radius: 50%;
       top: 220px;
       left: 50%;
       transform: translateX(20%) rotate(20deg);
@@ -66,7 +62,7 @@
       border-radius: 50%;
       top: 40px;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       z-index: 2;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
     }
@@ -76,10 +72,10 @@
       width: 80px;
       height: 120px;
       background: radial-gradient(circle at 30% 30%, #fff176, #fbc02d);
-      border-radius: 50%;
+      border-radius: 50% 50% 50% 50%;
       top: 40px;
       left: 50%;
-      transform-origin: center 80px;
+      transform-origin: center center;
       opacity: 0;
       transition: opacity 0.8s ease, transform 0.8s ease;
       z-index: 1;
@@ -139,7 +135,8 @@
         const petalo = document.createElement("div");
         petalo.className = "petalo";
         const angulo = (contador - 1) * 60;
-        petalo.style.transform = `rotate(${angulo}deg) translate(-50%, -130%) scale(1.1)`;
+        // Los pétalos nacen desde el centro y se distribuyen en círculo
+        petalo.style.transform = `rotate(${angulo}deg) translate(-50%, -50%)`;
         flor.appendChild(petalo);
         setTimeout(() => {
           petalo.style.opacity = 1;
