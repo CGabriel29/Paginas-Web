@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flor Amarilla - Edición Realista</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-night-top: #0f172a; /* Slate 900 */
+            --bg-night-mid: #020617; /* Slate 950 */
+            --bg-night-bottom: #000000;
+            --stem-light: #6b8e23;
+            --stem-dark: #3f5415;
+            --center-dark: #3e1f00;
+            --center-light: #9a4c00;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at center, var(--bg-night-top) 0%, var(--bg-night-mid) 60%, var(--bg-night-bottom) 100%);
+            color: white;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        .text-elegant-glow {
+            text-shadow: 0 0 15px rgba(253, 224, 71, 0.4);
+        }
+
+        #particles-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #plant-container {
+            position: relative;
+            width: 400px;
+            height: 450px;
+            z-index: 10;
+        }
+
+        .stem-main {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 350px;
+            background: linear-gradient(to right, var(--stem-dark) 0%, var(--stem-light) 50%, var(--stem-dark) 100%);
+            border-radius: 3px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 1.5s ease-in;
+        }
+
+        /* Capullo Lateral */
+        .stem-branch {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            width: 3px;
+            height: 130px;
+            background: linear-gradient(to right, var(--stem-dark) 0%, var(--stem-light) 50%, var(--stem-dark) 100%);
+            transform-origin: bottom center;
+            transform: rotate(35deg);
+            z-index: -1;
+        }
+
+        .secondary-bud {
+            position: absolute;
+            top: -15px;
+            left: -12px;
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle, #8a4100 0%, #3e1f00 100%);
+            border-radius: 50%;
+            z-index: 2;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+        }
+
+        .secondary-petal {
+            position: absolute;
+            width: 45px;
+            height: 20px;
+            background: linear-gradient(90deg, #ea580c 0%, #f59e0b 50%, #fcd34d 100%);
+            border-radius: 20% 80% 80% 20% / 50% 50% 50% 50%;
+            transform-origin: left center;
+        }
+        .secondary-petal:nth-child(1) { transform: rotate(-30deg) translateY(-5px); }
+        .secondary-petal:nth-child(2) { transform: rotate(15deg); }
+        .secondary-petal:nth-child(3) { transform: rotate(60deg) translateY(5px); }
+        .secondary-petal:nth-child(4) { transform: rotate(-75deg) translateY(-5px); z-index: -1; }
+
+        /* Hojas finas */
+        .leaf {
+            position: absolute;
+            background: linear-gradient(45deg, var(--stem-dark) 0%, var(--stem-light) 100%);
+            border-radius: 0 100% 0 100%;
+            box-shadow: inset 2px 2px 5px rgba(255,255,255,0.2);
+        }
+        .leaf-1 {
+            width: 40px; height: 15px;
+            bottom: 180px; left: -35px;
+            transform: rotate(-30deg);
+        }
+        .leaf-2 {
+            width: 50px; height: 18px;
+            bottom: 220px; left: 5px;
+            transform: rotate(45deg);
+        }
+        .leaf-3 { /* Hoja en la rama */
+            width: 35px; height: 12px;
+            top: 40px; left: -30px;
+            transform: rotate(-50deg);
+        }
+
+        .flower-center-wrapper {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            z-index: 25;
+            opacity: 0;
+            transition: opacity 1.5s ease-in;
+        }
+
+        .flower-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #d97706 10%, #9a3412 50%, #451a03 90%);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,0,0,0.6);
+            z-index: 2;
+        }
+
+        .stamen-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 55px;
+            height: 55px;
+            border: 5px dotted #fbbf24;
+            border-radius: 50%;
+            opacity: 0.8;
+            filter: drop-shadow(0 0 2px #b45309);
+            z-index: 3;
+        }
+
+        .stamen-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border: 4px dotted #fcd34d;
+            border-radius: 50%;
+            opacity: 0.6;
+            z-index: 3;
+        }
+
+        .petals-layer {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            width: 0; height: 0;
+            z-index: 15;
+        }
+
+        .petal-real {
+            position: absolute;
+            top: -30px; /* Mitad del alto */
+            left: 0;
+            width: 160px;
+            height: 60px;
+            /* Degradado de color base + Texturas de nervaduras */
+            background-color: #f59e0b;
+            background-image: 
+                linear-gradient(90deg, #7c2d12 0%, #d97706 20%, transparent 50%),
+                linear-gradient(270deg, #fef3c7 0%, transparent 40%),
+                repeating-linear-gradient(3deg, transparent 0px, transparent 5px, rgba(0,0,0,0.08) 6px, transparent 7px),
+                repeating-linear-gradient(-3deg, transparent 0px, transparent 5px, rgba(0,0,0,0.08) 6px, transparent 7px),
+                repeating-linear-gradient(90deg, transparent 0px, transparent 15px, rgba(255,255,255,0.15) 16px, transparent 18px);
+            /* Forma orgánica más ancha en la punta */
+            border-radius: 30% 70% 70% 30% / 50% 50% 50% 50%;
+            transform-origin: 15px center; /* Anclado cerca de la base izquierda */
+            box-shadow: 2px 5px 15px rgba(0,0,0,0.3);
+            opacity: 0;
+            cursor: pointer;
+            filter: drop-shadow(0 0 2px rgba(217, 119, 6, 0.5));
+            
+            /* Animación inicial */
+            transform: rotate(calc(var(--angle))) scale(0);
+            animation: bloom-real 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transition: filter 0.4s ease, transform 0.4s ease;
+        }
+
+        .petal-real:hover {
+            filter: drop-shadow(0 0 15px rgba(253, 224, 71, 0.8)) brightness(1.15);
+            z-index: 40; /* Traer al frente al hacer hover */
+        }
+
+        .petal-real.has-link::after {
+            content: '✨';
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            opacity: 0.9;
+            filter: drop-shadow(0 0 8px white);
+            animation: pulse-star 2s infinite alternate;
+        }
+
+        @keyframes bloom-real {
+            to {
+                transform: rotate(calc(var(--angle))) scale(1) translateX(25px);
+                opacity: 0.95;
+            }
+        }
+
+        @keyframes pulse-star {
+            0% { transform: translateY(-50%) scale(0.8); opacity: 0.6; }
+            100% { transform: translateY(-50%) scale(1.3); opacity: 1; }
+        }
+
+        .btn-magic {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(253, 224, 71, 0.3);
+            color: #fde047;
+            padding: 12px 32px;
+            border-radius: 9999px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(253, 224, 71, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-magic::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(253,224,71,0.2) 0%, transparent 60%);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.3s, transform 0.5s;
+        }
+
+        .btn-magic:hover::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .btn-magic:hover {
+            border-color: rgba(253, 224, 71, 0.8);
+            box-shadow: 0 0 20px rgba(253, 224, 71, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-magic:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Elegante Toast */
+        .toast-elegant {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 2px solid #d97706;
+            border-bottom: 2px solid #d97706;
+            color: #fef3c7;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            z-index: 100;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+        }
+
+        .toast-elegant.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center">
+    
+    <!-- Fondo de Polvo de Estrellas -->
+    <canvas id="particles-canvas"></canvas>
+
+    <main class="relative z-10 flex flex-col items-center justify-between w-full max-w-5xl h-[95vh] py-8 px-4">
+        
+        <!-- Cabecera Textual -->
+        <div class="text-center mt-2 z-20">
+            <h1 class="font-cinzel text-4xl md:text-5xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-yellow-200 to-yellow-500 text-elegant-glow">
+                Flor Amarilla
+            </h1>
+            <p class="text-lg md:text-xl text-yellow-100/80 italic font-light max-w-lg mx-auto tracking-wide drop-shadow-md">
+                "Completa los pétalos de la Flor, luego haz click en algunos pétalos"
+            </p>
+        </div>
+
+        <!-- Contenedor de la Planta -->
+        <div id="plant-container" class="mt-4 mb-8">
+            <!-- Tallo y Hojas Principales -->
+            <div id="stem-main" class="stem-main">
+                <div class="leaf leaf-1"></div>
+                <div class="leaf leaf-2"></div>
+                
+                <!-- Rama Secundaria (Capullo) -->
+                <div class="stem-branch">
+                    <div class="leaf leaf-3"></div>
+                    <div class="secondary-bud">
+                        <div class="secondary-petal"></div>
+                        <div class="secondary-petal"></div>
+                        <div class="secondary-petal"></div>
+                        <div class="secondary-petal"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Centro y Pétalos Principales -->
+            <div id="flower-center-wrapper" class="flower-center-wrapper">
+                <div class="flower-core"></div>
+                <div class="stamen-ring"></div>
+                <div class="stamen-inner"></div>
+            </div>
+            
+            <div id="petals-layer" class="petals-layer"></div>
+        </div>
+
+        <!-- Controles -->
+        <div class="mt-auto mb-4 z-20">
+            <button id="btn-add-petal" class="btn-magic font-cinzel">
+                Añadir Pétalo
+            </button>
+        </div>
+    </main>
+
+    <!-- Notificación Toast -->
+    <div id="toast" class="toast-elegant"></div>
+
+    <script>
+        const MAX_PETALS = 10;
+        let currentPetals = 0;
+        
+        // Enlaces de Instagram proporcionados
+        const rawLinks = [
+            "https://www.instagram.com/reel/DdjcfZGRAOm/?stkn=MWJ5bzQxZ2V6M3g0aQ==", 
+            "https://www.instagram.com/reel/DdkMBUmxZwM/?stkn=eHUxYm05YWN0eWhs", 
+            "https://www.instagram.com/reel/Ddj-TkuhpkQ/?stkn=MXg2bm5oNmZuMG0yeA==", 
+            "https://www.instagram.com/reel/DdkT6yBRSXb/?stkn=MTI2bnNlZnc4a3A5eA==", 
+            "https://www.instagram.com/reel/DdiOe9XAjca/?stkn=N21wY3BkbzVodHli", 
+            "https://www.instagram.com/reel/Ddj4driqGQH/?stkn=YzMyc2g4dTlsaGVh"
+        ];
+
+        let petalData = [];
+        
+        function initializeData() {
+            for (let i = 0; i < MAX_PETALS; i++) {
+                if (i < rawLinks.length) {
+                    petalData.push(rawLinks[i]);
+                } else {
+                    petalData.push(null);
+                }
+            }
+            // Mezclar aleatoriamente
+            for (let i = petalData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [petalData[i], petalData[j]] = [petalData[j], petalData[i]];
+            }
+        }
+
+        const btnAdd = document.getElementById('btn-add-petal');
+        const petalsLayer = document.getElementById('petals-layer');
+        const stemMain = document.getElementById('stem-main');
+        const flowerCenter = document.getElementById('flower-center-wrapper');
+        const toast = document.getElementById('toast');
+        let toastTimeout;
+
+        function showToast(message, duration = 3500) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        function triggerGoldenConfetti() {
+            const duration = 5000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 6,
+                    angle: 60,
+                    spread: 60,
+                    origin: { x: 0 },
+                    colors: ['#f59e0b', '#fbbf24', '#fef3c7'] 
+                });
+                confetti({
+                    particleCount: 6,
+                    angle: 120,
+                    spread: 60,
+                    origin: { x: 1 },
+                    colors: ['#f59e0b', '#fbbf24', '#fef3c7']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        function handlePetalClick(link) {
+            if (link) {
+                showToast("Un recuerdo muy especial para ti...");
+                setTimeout(() => {
+                    window.open(link, '_blank');
+                }, 1200);
+            } else {
+                const phrases = [
+                    "Eres la luz en la oscuridad.",
+                    "Cada detalle tuyo es arte.",
+                    "El tiempo se detiene al mirarte.",
+                    "Una belleza que florece eternamente."
+                ];
+                const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+                showToast(randomPhrase);
+            }
+        }
+
+        btnAdd.addEventListener('click', () => {
+            if (currentPetals === 0) {
+                // Aparece la planta
+                stemMain.style.opacity = '1';
+                flowerCenter.style.opacity = '1';
+            }
+
+            if (currentPetals < MAX_PETALS) {
+                const angle = currentPetals * (360 / MAX_PETALS) + (Math.random() * 10 - 5); // Ligera variación natural
+                const linkForThisPetal = petalData[currentPetals];
+                
+                const petal = document.createElement('div');
+                petal.className = 'petal-real';
+                if (linkForThisPetal) petal.classList.add('has-link');
+                
+                petal.style.setProperty('--angle', `${angle}deg`);
+                
+                // Efecto de superposición para dar volumen
+                petal.style.zIndex = (currentPetals % 2 === 0) ? 15 : 10; 
+                
+                petal.addEventListener('click', () => handlePetalClick(linkForThisPetal));
+
+                petalsLayer.appendChild(petal);
+                currentPetals++;
+
+                if (currentPetals === MAX_PETALS) {
+                    btnAdd.disabled = true;
+                    btnAdd.textContent = "Flor Radiante";
+                    btnAdd.classList.add('opacity-50', 'cursor-not-allowed');
+                    showToast("La belleza ha florecido por completo ✨", 4500);
+                    setTimeout(triggerGoldenConfetti, 800);
+                }
+            }
+        });
+
+        function setupParticles() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() {
+                    this.reset();
+                    this.y = Math.random() * height; 
+                }
+
+                reset() {
+                    this.x = Math.random() * width;
+                    this.y = height + Math.random() * 100;
+                    this.size = Math.random() * 1.5 + 0.2;
+                    this.speedY = -(Math.random() * 0.3 + 0.1);
+                    this.speedX = (Math.random() - 0.5) * 0.3;
+                    this.opacity = Math.random() * 0.5;
+                    this.opacityChange = (Math.random() * 0.005) + 0.002;
+                    this.fadingIn = true;
+                }
+
+                update() {
+                    this.y += this.speedY;
+                    this.x += this.speedX;
+
+                    if (this.fadingIn) {
+                        this.opacity += this.opacityChange;
+                        if (this.opacity >= 0.7) this.fadingIn = false;
+                    } else {
+                        this.opacity -= this.opacityChange;
+                        if (this.opacity <= 0.05) this.fadingIn = true;
+                    }
+
+                    if (this.y < -10 || this.x < -10 || this.x > width + 10) {
+                        this.reset();
+                    }
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(253, 224, 71, ${this.opacity})`; 
+                    ctx.shadowBlur = 5;
+                    ctx.shadowColor = "rgba(253, 224, 71, 0.5)";
+                    ctx.fill();
+                }
+            }
+
+            const particleCount = Math.floor(window.innerWidth / 12);
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        window.onload = function() {
+            initializeData();
+            setupParticles();
+        };
+
+    </script>
+</body>
+</html>
