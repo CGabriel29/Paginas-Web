@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flor Amarilla Mágica</title>
+    
+    <!-- Librerías Externas -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-deep: #1e1b4b;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-deep) 100%);
+            color: white;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-dancing { font-family: 'Dancing Script', cursive; }
+
+        /* Estrellas Parpadeantes en puro CSS */
+        .stars-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out alternate;
+            opacity: 0;
+            box-shadow: 0 0 5px 1px rgba(255,255,255,0.4);
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: var(--max-opacity); transform: scale(1.2); }
+        }
+
+        /* Glassmorphism Panel */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* SVG y Animaciones de Pétalos */
+        #flower-svg {
+            width: 100%;
+            height: 100%;
+            max-height: 70vh;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.5));
+        }
+
+        .petal-group {
+            transform-origin: 0px 0px; /* Anclado al centro (250,250) relativo al transform del grupo padre */
+            transform: scale(0);
+            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+        
+        .petal-group.bloom {
+            transform: scale(1);
+        }
+
+        .petal-group:hover path.petal-shape {
+            filter: drop-shadow(0 0 12px rgba(253, 224, 71, 0.8));
+            stroke: #fef08a;
+            stroke-width: 1.5;
+        }
+
+        /* Animación del indicador de enlace */
+        @keyframes pulse-glow {
+            0% { transform: scale(0.8); opacity: 0.7; filter: drop-shadow(0 0 5px #fff); }
+            100% { transform: scale(1.3); opacity: 1; filter: drop-shadow(0 0 12px #fde047); }
+        }
+        .link-indicator {
+            transform-origin: center;
+            animation: pulse-glow 1.5s infinite alternate;
+        }
+
+        /* Estilo del Toast */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(30px);
+            background: rgba(15, 23, 42, 0.9);
+            border-left: 4px solid #f59e0b;
+            color: #fef3c7;
+            padding: 16px 24px;
+            border-radius: 8px;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 50;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Botón Mágico */
+        .magic-btn {
+            background: linear-gradient(to right, #b45309, #d97706);
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
+            transition: all 0.3s;
+        }
+        .magic-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(217, 119, 6, 0.6);
+            background: linear-gradient(to right, #d97706, #f59e0b);
+        }
+        .magic-btn:disabled {
+            background: #475569;
+            box-shadow: none;
+            cursor: not-allowed;
+            color: #94a3b8;
+        }
+        
+        /* Barra de Progreso */
+        .progress-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            height: 6px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #fde047);
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+    </style>
+</head>
+<body class="flex flex-col relative">
+
+    <!-- Contenedor de Estrellas -->
+    <div class="stars-container" id="stars"></div>
+
+    <!-- UI Superior (Glassmorphism) -->
+    <header class="relative z-10 p-4 md:p-6 mx-4 mt-6 rounded-2xl glass-panel max-w-2xl md:mx-auto text-center">
+        <h1 class="font-dancing text-4xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-600 font-bold mb-2 drop-shadow-md">
+            Flor Amarilla Mágica
+        </h1>
+        <p class="text-sm md:text-base text-gray-200 font-light mb-3">
+            Completa los pétalos de la Flor, luego haz clic en algunos pétalos
+        </p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <p class="text-xs text-yellow-300 mt-2 tracking-widest" id="progress-text">0 / 10 PÉTALOS</p>
+    </header>
+
+    <!-- Contenedor Principal de la Flor SVG -->
+    <main class="relative z-10 flex-grow flex items-center justify-center overflow-visible">
+        <svg id="flower-svg" viewBox="0 0 500 700" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <!-- Degradado del tallo principal -->
+                <linearGradient id="stemGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#2f4f2f" />
+                    <stop offset="50%" stop-color="#556b2f" />
+                    <stop offset="100%" stop-color="#213a21" />
+                </linearGradient>
+
+                <!-- Degradado radial de los pétalos (Asignado dinámicamente, pero aquí hay un base) -->
+                <radialGradient id="petalBaseGrad" cx="50%" cy="100%" r="100%">
+                    <stop offset="0%" stop-color="#ea580c" />   <!-- Naranja base -->
+                    <stop offset="40%" stop-color="#f59e0b" />  <!-- Amarillo ambar -->
+                    <stop offset="100%" stop-color="#fde047" /> <!-- Amarillo brillante -->
+                </radialGradient>
+
+                <!-- Degradado del centro floral -->
+                <radialGradient id="centerCoreGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#4d7c0f" />   <!-- Verde oscuro central -->
+                    <stop offset="25%" stop-color="#78350f" />  <!-- Café cálido -->
+                    <stop offset="60%" stop-color="#451a03" />  <!-- Café muy oscuro -->
+                    <stop offset="100%" stop-color="#831843" /> <!-- Borde oscuro rojizo -->
+                </radialGradient>
+                
+                <radialGradient id="budGrad" cx="30%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#fde047" />
+                    <stop offset="100%" stop-color="#b45309" />
+                </radialGradient>
+            </defs>
+
+            <!-- GRUPO: Tallo Principal y Hojas finas (Helecho) -->
+            <g id="plant-base">
+                <!-- Tallo principal curvado -->
+                <path d="M 250,250 C 270,350 230,500 250,700" 
+                      fill="none" stroke="url(#stemGrad)" stroke-width="8" stroke-linecap="round"/>
+                
+                <!-- Hojas Finas Izquierda -->
+                <g stroke="url(#stemGrad)" stroke-width="2" fill="none" stroke-linecap="round">
+                    <path d="M 242,450 Q 200,430 160,460" />
+                    <path d="M 220,440 Q 190,410 170,420" />
+                    <path d="M 210,447 Q 190,460 170,470" />
+                    <path d="M 225,435 Q 200,400 190,390" />
+                </g>
+                
+                <!-- Hojas Finas Abajo Derecha -->
+                <g stroke="url(#stemGrad)" stroke-width="2.5" fill="none" stroke-linecap="round">
+                    <path d="M 246,580 Q 280,560 320,590" />
+                    <path d="M 270,570 Q 290,540 310,550" />
+                    <path d="M 285,580 Q 310,570 330,595" />
+                </g>
+
+                <!-- CAPULLO LATERAL (Lateral Bud) -->
+                <g id="lateral-bud" transform="translate(0, 0)">
+                    <!-- Ramita del capullo -->
+                    <path d="M 253,380 C 280,360 310,340 330,310" 
+                          fill="none" stroke="url(#stemGrad)" stroke-width="4" stroke-linecap="round"/>
+                    
+                    <!-- Base verde del capullo (Sépalos) -->
+                    <path d="M 330,310 Q 320,290 315,280 Q 330,295 330,310 Z" fill="#3f6212"/>
+                    <path d="M 330,310 Q 340,290 345,280 Q 330,295 330,310 Z" fill="#2f4f2f"/>
+                    <path d="M 330,310 Q 330,285 330,280 Q 330,295 330,310 Z" fill="#4d7c0f"/>
+                    
+                    <!-- Pétalos amarillos asomando -->
+                    <path d="M 320,285 Q 310,260 325,255 Q 330,270 325,285 Z" fill="url(#budGrad)"/>
+                    <path d="M 340,285 Q 350,260 335,255 Q 330,270 335,285 Z" fill="url(#budGrad)"/>
+                    <path d="M 330,280 Q 330,250 330,250 Q 330,265 330,280 Z" fill="#fef08a" stroke="#d97706" stroke-width="0.5"/>
+                </g>
+            </g>
+
+            <!-- GRUPO: Contenedor de Pétalos (Se llena dinámicamente vía JS) -->
+            <!-- Posicionado en el centro de la flor (250, 250) -->
+            <g id="petals-container" transform="translate(250, 250)">
+                <!-- Pétalos se insertarán aquí -->
+            </g>
+
+            <!-- GRUPO: Centro Detallado de la Flor (Se dibuja DESPUÉS de los pétalos para estar encima) -->
+            <g id="flower-center" transform="translate(250, 250)">
+                <!-- Base hiperrealista del núcleo -->
+                <circle cx="0" cy="0" r="32" fill="url(#centerCoreGrad)" filter="drop-shadow(0 2px 8px rgba(0,0,0,0.7))"/>
+                
+                <!-- Anillos de Estambres (Usando stroke-dasharray para simular puntos) -->
+                <!-- Anillo exterior café/naranja oscuro -->
+                <circle cx="0" cy="0" r="26" fill="none" stroke="#78350f" stroke-width="8" stroke-dasharray="3 5" opacity="0.9"/>
+                <!-- Anillo intermedio amarillo vibrante (Polen) -->
+                <circle cx="0" cy="0" r="18" fill="none" stroke="#fbbf24" stroke-width="5" stroke-dasharray="2 4" opacity="0.95"/>
+                <!-- Anillo interior negro/muy oscuro -->
+                <circle cx="0" cy="0" r="12" fill="none" stroke="#1c1917" stroke-width="4" stroke-dasharray="1.5 3"/>
+                <!-- Núcleo central texturizado verde/dorado -->
+                <circle cx="0" cy="0" r="6" fill="#84cc16" opacity="0.8"/>
+                <circle cx="0" cy="0" r="3" fill="#fde047"/>
+            </g>
+        </svg>
+    </main>
+
+    <!-- UI Inferior (Controles) -->
+    <div class="relative z-10 mb-8 mt-2 flex justify-center w-full">
+        <button id="add-petal-btn" class="magic-btn px-8 py-3 rounded-full text-white font-semibold text-lg tracking-wide focus:outline-none">
+            Añadir Pétalo ✨
+        </button>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast">
+        <span id="toast-icon">✨</span>
+        <span id="toast-msg">Mensaje</span>
+    </div>
+
+    <script>
+        // Generador de estrellas de fondo en CSS
+        const starsContainer = document.getElementById('stars');
+        for(let i=0; i<60; i++) {
+            let star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.width = `${Math.random() * 3 + 1}px`;
+            star.style.height = star.style.width;
+            star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+            star.style.setProperty('--max-opacity', `${Math.random() * 0.7 + 0.3}`);
+            star.style.animationDelay = `${Math.random() * 5}s`;
+            starsContainer.appendChild(star);
+        }
+
+        // Datos y Enlaces
+        const TOTAL_PETALS = 10;
+        let currentPetalCount = 0;
+        
+        // 6 Enlaces reales + 4 nulos (decorativos) para llegar a 10 pétalos.
+        const linksData = [
+            "https://www.instagram.com/reel/DdjcfZGRAOm/?stkn=MWJ5bzQxZ2V6M3g0aQ==", 
+            "https://www.instagram.com/reel/DdkMBUmxZwM/?stkn=eHUxYm05YWN0eWhs", 
+            "https://www.instagram.com/reel/Ddj-TkuhpkQ/?stkn=MXg2bm5oNmZuMG0yeA==", 
+            "https://www.instagram.com/reel/DdkT6yBRSXb/?stkn=MTI2bnNlZnc4a3A5eA==", 
+            "https://www.instagram.com/reel/DdiOe9XAjca/?stkn=N21wY3BkbzVodHli", 
+            "https://www.instagram.com/reel/Ddj4driqGQH/?stkn=YzMyc2g4dTlsaGVh",
+            null, null, null, null
+        ];
+
+        // Mezclar aleatoriamente el array (Fisher-Yates)
+        for (let i = linksData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [linksData[i], linksData[j]] = [linksData[j], linksData[i]];
+        }
+
+        // Variantes de trazados (paths) hiperrealistas para pétalos (hacia arriba Y negativo)
+        const petalPaths = [
+            // Variante 1: Ancho y con borde superior dentado natural
+            "M 0,0 C -20,-40 -45,-80 -35,-140 C -30,-155 -15,-165 0,-155 C 15,-165 30,-155 35,-140 C 45,-80 20,-40 0,0 Z",
+            // Variante 2: Ligeramente asimétrico hacia la izquierda
+            "M 0,0 C -25,-35 -50,-90 -35,-145 C -25,-165 0,-160 10,-150 C 25,-155 40,-135 30,-110 C 20,-60 15,-30 0,0 Z",
+            // Variante 3: Delgado en base, muy ancho en punta
+            "M 0,0 C -15,-50 -35,-100 -25,-150 C -20,-170 5,-175 15,-160 C 35,-165 45,-140 40,-115 C 30,-70 15,-40 0,0 Z"
+        ];
+
+        // Variantes de nervaduras internas
+        const veinPaths = [
+            '<path d="M 0,-10 Q -8,-70 -5,-130" stroke="rgba(194,65,12,0.3)" stroke-width="1.5" fill="none"/><path d="M 0,-10 Q 8,-70 5,-120" stroke="rgba(194,65,12,0.2)" stroke-width="1" fill="none"/>',
+            '<path d="M -3,-10 Q -15,-60 -10,-120" stroke="rgba(194,65,12,0.25)" stroke-width="1" fill="none"/><path d="M 3,-10 Q 15,-60 12,-110" stroke="rgba(194,65,12,0.25)" stroke-width="1" fill="none"/><path d="M 0,-5 L 0,-135" stroke="rgba(194,65,12,0.35)" stroke-width="1.5" fill="none"/>'
+        ];
+
+        const petalsContainer = document.getElementById('petals-container');
+        const btnAdd = document.getElementById('add-petal-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+        let toastTimeout;
+
+        function showToast(message, isLink = false) {
+            toastMsg.innerHTML = message;
+            document.getElementById('toast-icon').textContent = isLink ? '📸' : '💛';
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
+        }
+
+        // Función para crear elementos SVG correctamente
+        function createSVGElement(tag) {
+            return document.createElementNS("http://www.w3.org/2000/svg", tag);
+        }
+
+        function createPetal(index, link) {
+            // Calcular ángulo para que rodeen los 360 grados de manera uniforme
+            const angle = (index * (360 / TOTAL_PETALS)) + (Math.random() * 10 - 5);
+            const pathVariant = petalPaths[Math.floor(Math.random() * petalPaths.length)];
+            const veinVariant = veinPaths[Math.floor(Math.random() * veinPaths.length)];
+
+            // Wrapper group para manejar la rotación. 
+            // Si es un link, usamos <a>, si no, un <g> regular.
+            const wrapper = createSVGElement(link ? 'a' : 'g');
+            wrapper.setAttribute('class', 'petal-group');
+            wrapper.setAttribute('style', `transform: rotate(${angle}deg) scale(0);`);
+            
+            if (link) {
+                wrapper.setAttribute('href', link);
+                wrapper.setAttribute('target', '_blank');
+                wrapper.addEventListener('click', (e) => {
+                    // Prevenir doble apertura si queremos manejarlo por toast primero, pero target _blank funciona.
+                    showToast("Abriendo recuerdo especial en Instagram...", true);
+                });
+            } else {
+                wrapper.addEventListener('click', () => {
+                    const frases = [
+                        "Este pétalo es pura belleza decorativa 💛",
+                        "Una obra de arte natural, como tú ✨",
+                        "Detalles dorados que iluminan el jardín 🌻"
+                    ];
+                    showToast(frases[Math.floor(Math.random() * frases.length)]);
+                });
+            }
+
+            // Forma principal del pétalo
+            const pathNode = createSVGElement('path');
+            pathNode.setAttribute('class', 'petal-shape');
+            pathNode.setAttribute('d', pathVariant);
+            pathNode.setAttribute('fill', 'url(#petalBaseGrad)');
+            pathNode.setAttribute('stroke', '#d97706'); // Contorno sutil
+            pathNode.setAttribute('stroke-width', '0.5');
+            wrapper.appendChild(pathNode);
+
+            // Insertar Nervaduras parseando el string (hack rápido para no crear nodo por nodo)
+            const veinsGroup = createSVGElement('g');
+            veinsGroup.innerHTML = veinVariant; // Funciona en SVG moderno dentro de HTML5
+            wrapper.appendChild(veinsGroup);
+
+            // Si es link, agregar indicador mágico parpadeante cerca de la punta
+            if (link) {
+                const indicator = createSVGElement('circle');
+                indicator.setAttribute('class', 'link-indicator');
+                indicator.setAttribute('cx', '0');
+                indicator.setAttribute('cy', '-130');
+                indicator.setAttribute('r', '4');
+                indicator.setAttribute('fill', '#ffffff');
+                wrapper.appendChild(indicator);
+            }
+
+            return wrapper;
+        }
+
+        btnAdd.addEventListener('click', () => {
+            if (currentPetalCount < TOTAL_PETALS) {
+                const linkForThisPetal = linksData[currentPetalCount];
+                const newPetal = createPetal(currentPetalCount, linkForThisPetal);
+                
+                petalsContainer.appendChild(newPetal);
+                
+                // Trigger reflow para que la animación CSS funcione
+                void newPetal.offsetWidth; 
+                newPetal.classList.add('bloom');
+                newPetal.style.transform = `rotate(${newPetal.style.transform.match(/rotate\(([^)]+)\)/)[1]}) scale(1)`;
+
+                currentPetalCount++;
+                
+                // Actualizar UI
+                progressBar.style.width = `${(currentPetalCount / TOTAL_PETALS) * 100}%`;
+                progressText.textContent = `${currentPetalCount} / ${TOTAL_PETALS} PÉTALOS`;
+
+                if (currentPetalCount === TOTAL_PETALS) {
+                    btnAdd.disabled = true;
+                    btnAdd.textContent = "¡Flor Mágica Completa! 🌻";
+                    showToast("La belleza ha florecido por completo. Toca los pétalos brillantes.", false);
+                    
+                    // Disparar Confetti
+                    setTimeout(() => {
+                        const duration = 4000;
+                        const end = Date.now() + duration;
+
+                        (function frame() {
+                            confetti({
+                                particleCount: 5,
+                                angle: 60,
+                                spread: 55,
+                                origin: { x: 0 },
+                                colors: ['#f59e0b', '#fef3c7', '#ffffff']
+                            });
+                            confetti({
+                                particleCount: 5,
+                                angle: 120,
+                                spread: 55,
+                                origin: { x: 1 },
+                                colors: ['#f59e0b', '#fef3c7', '#ffffff']
+                            });
+
+                            if (Date.now() < end) {
+                                requestAnimationFrame(frame);
+                            }
+                        }());
+                    }, 500);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
