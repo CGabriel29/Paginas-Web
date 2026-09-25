@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Tamara ✨</title>
+    
+    <!-- Librerías Externas -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-deep: #1e1b4b;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-deep) 100%);
+            color: white;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-dancing { font-family: 'Dancing Script', cursive; }
+
+        .stars-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out alternate;
+            opacity: 0;
+            box-shadow: 0 0 5px 1px rgba(255,255,255,0.4);
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: var(--max-opacity); transform: scale(1.2); }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        #flower-svg {
+            width: 100%;
+            height: 100%;
+            max-height: 70vh;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.5));
+        }
+
+        .petal-group {
+            transform-origin: 0px 0px;
+            transform: scale(0);
+            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+        
+        .petal-group.bloom {
+            transform: scale(1);
+        }
+
+        .petal-group:hover path.petal-shape {
+            filter: drop-shadow(0 0 12px rgba(253, 224, 71, 0.8));
+            stroke: #fef08a;
+            stroke-width: 1.5;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(0.8); opacity: 0.5; filter: drop-shadow(0 0 3px #fff); }
+            100% { transform: scale(1.3); opacity: 1; filter: drop-shadow(0 0 8px #fde047); }
+        }
+        .link-indicator {
+            transform-origin: center;
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        .magic-btn {
+            background: linear-gradient(to right, #b45309, #d97706);
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
+            transition: all 0.3s;
+        }
+        .magic-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(217, 119, 6, 0.6);
+            background: linear-gradient(to right, #d97706, #f59e0b);
+        }
+        .magic-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+            cursor: not-allowed;
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .progress-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            height: 6px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #fde047);
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+
+        #modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #modal-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        #modal-content {
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #modal-overlay.active #modal-content {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="flex flex-col relative">
+
+    <!-- Contenedor de Estrellas -->
+    <div class="stars-container" id="stars"></div>
+
+    <header class="relative z-10 p-4 md:p-6 mx-4 mt-6 rounded-2xl glass-panel max-w-2xl md:mx-auto text-center">
+        <h1 class="font-dancing text-5xl md:text-6xl font-bold mb-3 drop-shadow-md flex justify-center items-center gap-3">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-600">Para Tamara</span>
+            <svg class="w-8 h-8 text-yellow-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12,0 C13.5,8.5 17.5,11.5 24,12 C17.5,12.5 13.5,15.5 12,24 C10.5,15.5 6.5,12.5 0,12 C6.5,11.5 10.5,8.5 12,0 Z"/></svg>
+        </h1>
+        <p class="text-sm md:text-base text-gray-200 font-light mb-3">
+            Completa la flor y descubre tus mensajes de primavera.
+        </p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <p class="text-xs text-yellow-300 mt-2 tracking-widest" id="progress-text">0 / 10 PÉTALOS</p>
+    </header>
+
+    <main class="relative z-10 flex-grow flex items-center justify-center overflow-visible">
+        <svg id="flower-svg" viewBox="0 0 500 700" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <linearGradient id="stemGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#2f4f2f" />
+                    <stop offset="50%" stop-color="#556b2f" />
+                    <stop offset="100%" stop-color="#213a21" />
+                </linearGradient>
+
+                <radialGradient id="petalBaseGrad" cx="50%" cy="100%" r="100%">
+                    <stop offset="0%" stop-color="#ea580c" />
+                    <stop offset="40%" stop-color="#f59e0b" />
+                    <stop offset="100%" stop-color="#fde047" />
+                </radialGradient>
+
+                <radialGradient id="centerCoreGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#4d7c0f" />
+                    <stop offset="25%" stop-color="#78350f" />
+                    <stop offset="60%" stop-color="#451a03" />
+                    <stop offset="100%" stop-color="#831843" />
+                </radialGradient>
+                
+                <radialGradient id="budGrad" cx="30%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#fde047" />
+                    <stop offset="100%" stop-color="#b45309" />
+                </radialGradient>
+            </defs>
+
+            <g id="plant-base">
+                <path d="M 250,250 C 270,350 230,500 250,700" 
+                      fill="none" stroke="url(#stemGrad)" stroke-width="8" stroke-linecap="round"/>
+                
+                <g stroke="url(#stemGrad)" stroke-width="2" fill="none" stroke-linecap="round">
+                    <path d="M 242,450 Q 200,430 160,460" />
+                    <path d="M 220,440 Q 190,410 170,420" />
+                    <path d="M 210,447 Q 190,460 170,470" />
+                    <path d="M 225,435 Q 200,400 190,390" />
+                </g>
+                
+                <g stroke="url(#stemGrad)" stroke-width="2.5" fill="none" stroke-linecap="round">
+                    <path d="M 246,580 Q 280,560 320,590" />
+                    <path d="M 270,570 Q 290,540 310,550" />
+                    <path d="M 285,580 Q 310,570 330,595" />
+                </g>
+
+                <g id="lateral-bud" transform="translate(0, 0)">
+                    <path d="M 253,380 C 280,360 310,340 330,310" 
+                          fill="none" stroke="url(#stemGrad)" stroke-width="4" stroke-linecap="round"/>
+                    
+                    <path d="M 330,310 Q 320,290 315,280 Q 330,295 330,310 Z" fill="#3f6212"/>
+                    <path d="M 330,310 Q 340,290 345,280 Q 330,295 330,310 Z" fill="#2f4f2f"/>
+                    <path d="M 330,310 Q 330,285 330,280 Q 330,295 330,310 Z" fill="#4d7c0f"/>
+                    
+                    <path d="M 320,285 Q 310,260 325,255 Q 330,270 325,285 Z" fill="url(#budGrad)"/>
+                    <path d="M 340,285 Q 350,260 335,255 Q 330,270 335,285 Z" fill="url(#budGrad)"/>
+                    <path d="M 330,280 Q 330,250 330,250 Q 330,265 330,280 Z" fill="#fef08a" stroke="#d97706" stroke-width="0.5"/>
+                </g>
+            </g>
+
+            <g id="petals-container" transform="translate(250, 250)">
+            </g>
+
+            <g id="flower-center" transform="translate(250, 250)">
+                <circle cx="0" cy="0" r="32" fill="url(#centerCoreGrad)" filter="drop-shadow(0 2px 8px rgba(0,0,0,0.7))"/>
+                
+                <circle cx="0" cy="0" r="26" fill="none" stroke="#78350f" stroke-width="8" stroke-dasharray="3 5" opacity="0.9"/>
+                <circle cx="0" cy="0" r="18" fill="none" stroke="#fbbf24" stroke-width="5" stroke-dasharray="2 4" opacity="0.95"/>
+                <circle cx="0" cy="0" r="12" fill="none" stroke="#1c1917" stroke-width="4" stroke-dasharray="1.5 3"/>
+                
+                <circle cx="0" cy="0" r="6" fill="#84cc16" opacity="0.8"/>
+                <circle cx="0" cy="0" r="3" fill="#fde047"/>
+            </g>
+        </svg>
+    </main>
+
+    <!-- UI Inferior -->
+    <div class="relative z-10 mb-8 mt-2 flex justify-center w-full">
+        <button id="add-petal-btn" class="magic-btn px-8 py-3 rounded-full text-white font-semibold text-lg tracking-wide focus:outline-none flex items-center justify-center gap-2">
+            <span>Añadir Pétalo</span>
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12,2 C12.5,8 14.5,10.5 20,11.5 C14.5,12.5 12.5,15 12,21 C11.5,15 9.5,12.5 4,11.5 C9.5,10.5 11.5,8 12,2 Z"/></svg>
+        </button>
+    </div>
+
+    <div id="modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <!-- Fondo oscuro con blur -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        
+        <!-- Tarjeta de mensaje -->
+        <div id="modal-content" class="relative glass-panel p-8 max-w-md w-full text-center rounded-2xl border border-yellow-500/30 shadow-[0_0_50px_rgba(253,224,71,0.15)] bg-slate-900/80">
+            <!-- Botón cerrar -->
+            <button onclick="closeModal()" class="absolute top-4 right-5 text-2xl text-gray-400 hover:text-yellow-300 transition-colors focus:outline-none">
+                &times;
+            </button>
+            
+            <div class="flex justify-center items-center gap-4 mb-6 text-yellow-400 drop-shadow-[0_0_12px_rgba(253,224,71,0.8)]">
+                <svg class="w-6 h-6 opacity-80" viewBox="0 0 24 24" fill="currentColor"><path d="M12,2 C12.5,8 14.5,10.5 20,11.5 C14.5,12.5 12.5,15 12,21 C11.5,15 9.5,12.5 4,11.5 C9.5,10.5 11.5,8 12,2 Z"/></svg>
+                <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor"><path d="M12,0 C13.5,8.5 17.5,11.5 24,12 C17.5,12.5 13.5,15.5 12,24 C10.5,15.5 6.5,12.5 0,12 C6.5,11.5 10.5,8.5 12,0 Z"/></svg>
+                <svg class="w-6 h-6 opacity-80" viewBox="0 0 24 24" fill="currentColor"><path d="M12,2 C12.5,8 14.5,10.5 20,11.5 C14.5,12.5 12.5,15 12,21 C11.5,15 9.5,12.5 4,11.5 C9.5,10.5 11.5,8 12,2 Z"/></svg>
+            </div>
+            
+            <p id="modal-text" class="text-xl md:text-2xl font-light leading-relaxed text-yellow-50 drop-shadow-md">
+                <!-- El mensaje va aquí -->
+            </p>
+            
+            <div class="mt-8 text-sm text-yellow-600/70 uppercase tracking-widest">
+                Feliz Primavera
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const starsContainer = document.getElementById('stars');
+        for(let i=0; i<60; i++) {
+            let star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.width = `${Math.random() * 3 + 1}px`;
+            star.style.height = star.style.width;
+            star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+            star.style.setProperty('--max-opacity', `${Math.random() * 0.7 + 0.3}`);
+            star.style.animationDelay = `${Math.random() * 5}s`;
+            starsContainer.appendChild(star);
+        }
+
+        const TOTAL_PETALS = 10;
+        let currentPetalCount = 0;
+        
+        // Frases para Tamara (10 mensajes)
+        const messagesData = [
+            "Que esta primavera te llene de días bonitos y buena energía.",
+            "Feliz primavera. Ojalá hoy te sonría todo.",
+            "Que florezcan tus planes y se cumplan tus metas.",
+            "Disfruta el sol, las flores y todo lo lindo de hoy.",
+            "Que tengas un día alegre, tranquilo y lleno de cosas buenas.",
+            "Hoy es un buen día para sonreír. ¡Feliz primavera!",
+            "Que esta estación te traiga ideas nuevas y momentos felices.",
+            "Espero que tengas un día tan lindo como esta temporada.",
+            "Que no te falten motivos para estar contenta. Feliz primavera.",
+            "Brilla, disfruta y aprovecha este día de primavera."
+        ];
+
+        // Mezclar aleatoriamente los mensajes
+        for (let i = messagesData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [messagesData[i], messagesData[j]] = [messagesData[j], messagesData[i]];
+        }
+
+        const petalPaths = [
+            "M 0,0 C -20,-40 -45,-80 -35,-140 C -30,-155 -15,-165 0,-155 C 15,-165 30,-155 35,-140 C 45,-80 20,-40 0,0 Z",
+            "M 0,0 C -25,-35 -50,-90 -35,-145 C -25,-165 0,-160 10,-150 C 25,-155 40,-135 30,-110 C 20,-60 15,-30 0,0 Z",
+            "M 0,0 C -15,-50 -35,-100 -25,-150 C -20,-170 5,-175 15,-160 C 35,-165 45,-140 40,-115 C 30,-70 15,-40 0,0 Z"
+        ];
+
+        const veinPaths = [
+            '<path d="M 0,-10 Q -8,-70 -5,-130" stroke="rgba(194,65,12,0.3)" stroke-width="1.5" fill="none"/><path d="M 0,-10 Q 8,-70 5,-120" stroke="rgba(194,65,12,0.2)" stroke-width="1" fill="none"/>',
+            '<path d="M -3,-10 Q -15,-60 -10,-120" stroke="rgba(194,65,12,0.25)" stroke-width="1" fill="none"/><path d="M 3,-10 Q 15,-60 12,-110" stroke="rgba(194,65,12,0.25)" stroke-width="1" fill="none"/><path d="M 0,-5 L 0,-135" stroke="rgba(194,65,12,0.35)" stroke-width="1.5" fill="none"/>'
+        ];
+
+        const petalsContainer = document.getElementById('petals-container');
+        const btnAdd = document.getElementById('add-petal-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalText = document.getElementById('modal-text');
+
+        function openModal(message) {
+            modalText.textContent = message;
+            modalOverlay.classList.add('active');
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        function createSVGElement(tag) {
+            return document.createElementNS("http://www.w3.org/2000/svg", tag);
+        }
+
+        function createPetal(index, message) {
+            const angle = (index * (360 / TOTAL_PETALS)) + (Math.random() * 10 - 5);
+            const pathVariant = petalPaths[Math.floor(Math.random() * petalPaths.length)];
+            const veinVariant = veinPaths[Math.floor(Math.random() * veinPaths.length)];
+
+            const wrapper = createSVGElement('g');
+            wrapper.setAttribute('class', 'petal-group');
+            wrapper.setAttribute('style', `transform: rotate(${angle}deg) scale(0);`);
+            
+            // Asignar el evento click que abre el modal con el mensaje específico
+            wrapper.addEventListener('click', () => openModal(message));
+
+            const pathNode = createSVGElement('path');
+            pathNode.setAttribute('class', 'petal-shape');
+            pathNode.setAttribute('d', pathVariant);
+            pathNode.setAttribute('fill', 'url(#petalBaseGrad)');
+            pathNode.setAttribute('stroke', '#d97706');
+            pathNode.setAttribute('stroke-width', '0.5');
+            wrapper.appendChild(pathNode);
+
+            const veinsGroup = createSVGElement('g');
+            veinsGroup.innerHTML = veinVariant;
+            wrapper.appendChild(veinsGroup);
+
+            // Indicador sutil para demostrar que se puede hacer click
+            const indicator = createSVGElement('circle');
+            indicator.setAttribute('class', 'link-indicator');
+            indicator.setAttribute('cx', '0');
+            indicator.setAttribute('cy', '-130');
+            indicator.setAttribute('r', '3');
+            indicator.setAttribute('fill', '#ffffff');
+            wrapper.appendChild(indicator);
+
+            return wrapper;
+        }
+
+        btnAdd.addEventListener('click', () => {
+            if (currentPetalCount < TOTAL_PETALS) {
+                const messageForThisPetal = messagesData[currentPetalCount];
+                const newPetal = createPetal(currentPetalCount, messageForThisPetal);
+                
+                petalsContainer.appendChild(newPetal);
+                
+                void newPetal.offsetWidth; 
+                newPetal.classList.add('bloom');
+                newPetal.style.transform = `rotate(${newPetal.style.transform.match(/rotate\(([^)]+)\)/)[1]}) scale(1)`;
+
+                currentPetalCount++;
+                
+                progressBar.style.width = `${(currentPetalCount / TOTAL_PETALS) * 100}%`;
+                progressText.textContent = `${currentPetalCount} / ${TOTAL_PETALS} PÉTALOS`;
+
+                if (currentPetalCount === TOTAL_PETALS) {
+                    btnAdd.disabled = true;
+                    btnAdd.innerHTML = `<span>¡Flor Completa!</span><svg class="w-5 h-5 inline-block ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M12,2 C12.5,8 14.5,10.5 20,11.5 C14.5,12.5 12.5,15 12,21 C11.5,15 9.5,12.5 4,11.5 C9.5,10.5 11.5,8 12,2 Z"/></svg>`;
+                    
+                    // Pequeña sugerencia visual si no han clickeado aún
+                    setTimeout(() => {
+                        if(!modalOverlay.classList.contains('active')) {
+                            document.querySelector('.link-indicator').style.animationDuration = '0.5s';
+                        }
+                    }, 2000);
+                    
+                    setTimeout(() => {
+                        const duration = 5000;
+                        const end = Date.now() + duration;
+
+                        (function frame() {
+                            confetti({
+                                particleCount: 6,
+                                angle: 60,
+                                spread: 60,
+                                origin: { x: 0 },
+                                colors: ['#f59e0b', '#fef3c7', '#ffffff']
+                            });
+                            confetti({
+                                particleCount: 6,
+                                angle: 120,
+                                spread: 60,
+                                origin: { x: 1 },
+                                colors: ['#f59e0b', '#fef3c7', '#ffffff']
+                            });
+
+                            if (Date.now() < end) {
+                                requestAnimationFrame(frame);
+                            }
+                        }());
+                    }, 500);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
